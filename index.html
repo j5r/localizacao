@@ -128,19 +128,21 @@
         
         // Montagem da URL tratando o caso de rodar direto do arquivo (origin null)
         // Substitua o bloco antigo da urlBase por este:
+// Substitua o bloco da urlBase por este:
 let urlBase = "";
 
-// Verifica se estamos no GitHub Pages ou em um servidor real
 if (window.location.origin !== "null" && !window.location.origin.includes("blob")) {
-    // Captura o domínio + o caminho da pasta (ex: https://j5r.github.io/localizacao/)
+    // Captura o domínio + a pasta (ex: https://j5r.github.io/localizacao/)
+    // Como o arquivo é index.html, a URL termina na barra '/'
     const pathArray = window.location.pathname.split('/');
-    pathArray.pop(); // Remove o nome do arquivo atual ou o ID do blob
+    pathArray.pop(); 
     const folderPath = pathArray.join('/');
     
-    urlBase = window.location.origin + folderPath + "/localizacao.html";
+    // Adicionamos a barra no final para que o navegador entenda que é a raiz da pasta
+    urlBase = window.location.origin + folderPath + "/";
 } else {
-    // Fallback caso o navegador não consiga identificar a origem (ex: rodando localmente)
-    urlBase = "https://j5r.github.io/localizacao/localizacao.html";
+    // Fallback estático para o seu novo endereço padrão
+    urlBase = "https://j5r.github.io/localizacao/";
 }
         
         let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
@@ -229,3 +231,4 @@ window.onload = function() {
 </body>
 
 </html>
+
