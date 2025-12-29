@@ -106,6 +106,27 @@
     a { align-items: center; display: flex; flex-direction: column; text-decoration: none; color: #333; font-weight: bold; font-size: 14px; }
     img { width: 45px; margin-bottom: 8px; }
     .acoes { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    
+    /* Estilo da nova área de link */
+    #area-link { 
+        display: none; 
+        margin-top: 20px; 
+        padding: 15px; 
+        background: #e9ecef; 
+        border-radius: 8px; 
+        width: 100%; 
+        max-width: 300px; 
+        border: 1px solid #ccc;
+    }
+    #input-link { 
+        width: 90%; 
+        padding: 10px; 
+        margin-top: 10px; 
+        border: 1px solid #aaa; 
+        border-radius: 4px; 
+        font-size: 14px; 
+    }
+    
     .btn-share { padding: 12px 20px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; width: 220px; }
     .btn-voltar { padding: 8px 15px; border: none; background: #666; color: white; border-radius: 5px; cursor: pointer; font-size: 12px; }
   </style>
@@ -115,7 +136,14 @@
   <ul>***</ul> 
   
   <div class="acoes">
-    <button class="btn-share" onclick="compartilharLink()">🔗 Compartilhar este local</button>
+    <button class="btn-share" id="btn-share" onclick="compartilharLink()">🔗 Gerar link para compartilhar</button>
+    
+    <div id="area-link">
+        <label style="font-size: 12px; font-weight: bold; color: #555;">LINK PRONTO:</label><br>
+        <input type="text" id="input-link" readonly onclick="this.select()">
+        <p style="font-size: 10px; color: #777; margin-top: 5px;">Toque no link acima para selecionar e copiar.</p>
+    </div>
+
     <button class="btn-voltar" onclick="window.history.back()">Voltar e alterar</button>
   </div>
 
@@ -128,56 +156,24 @@
         
         let urlBase = "https://j5r.github.io/localizacao/";
         let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
+        
         if (nomeLocal && nomeLocal.trim() !== "") {
             urlFinal += "&nome=" + encodeURIComponent(nomeLocal);
         }
 
-        // TÉCNICA FINAL: Textarea visível mas minúsculo
-        const aux = document.createElement("textarea");
-        aux.value = urlFinal;
+        // Exibe a área do link e preenche o input
+        const area = document.getElementById('area-link');
+        const input = document.getElementById('input-link');
+        const btn = document.getElementById('btn-share');
+
+        area.style.display = 'block';
+        input.value = urlFinal;
         
-        // Estilos para garantir que o navegador "veja" o elemento e permita a cópia
-        Object.assign(aux.style, {
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '2em',
-            height: '2em',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            boxShadow: 'none',
-            background: 'transparent',
-            fontSize: '16px' // Impede o zoom no iOS
-        });
-
-        document.body.appendChild(aux);
-        aux.focus();
-        aux.select();
+        // Rola a página para baixo para mostrar o link
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         
-        // Seleção específica para iOS/Android
-        const range = document.createRange();
-        range.selectNodeContents(aux);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        aux.setSelectionRange(0, 999999);
-
-        let copiado = false;
-        try {
-            copiado = document.execCommand("copy");
-        } catch (err) {
-            console.error("Erro ao copiar:", err);
-        }
-
-        document.body.removeChild(aux);
-
-        if (copiado) {
-            alert("✅ COPIADO!\n\nAgora você pode colar o link onde quiser.");
-        } else {
-            // ÚLTIMO RECURSO: Se a cópia automática falhar, o usuário copia daqui
-            prompt("Sua segurança bloqueou a cópia automática. Copie o link abaixo:", urlFinal);
-        }
+        // Opcional: Tenta selecionar automaticamente para facilitar
+        input.select();
     }
   <\/script>
 </body>
@@ -249,6 +245,7 @@ window.onload = function() {
 </body>
 
 </html>
+
 
 
 
