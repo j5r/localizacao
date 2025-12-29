@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Interativo - Sem Piscada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: "Arimo", sans-serif; background: #cdd3dc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* SOLUÇÃO 1: O cartão agora tem o fundo escuro por padrão */
+        .tutorial-card { 
+            background: #333; /* Cor escura para evitar o flash branco */
+            width: 95%; 
+            max-width: 1200px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+            overflow: hidden; 
+            position: relative; 
+        }
+
+        /* Estilo Desktop */
+        @media (min-width: 768px) {
+            .slide-content { display: flex; align-items: stretch; min-height: 500px; }
+            .slide-image-container { 
+                flex: 6.5; 
+                padding: 20px; 
+                text-align: center; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                background: #526c79; /* Sua cor personalizada */
+            }
+            .slide-text-container { 
+                flex: 2; 
+                padding: 30px; 
+                background: #333; 
+                color: white; 
+                font-size: 25px; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: center; 
+                text-align: left; 
+            }
+            .slide-image-container img { max-height: 500px; width: auto; max-width: 100%; object-fit: contain; border-top-left-radius: 25px; border-bottom-right-radius: 25px; }
+        }
+
+        /* Estilo Mobile */
+        @media (max-width: 767px) {
+            .slide-content { display: block; text-align: center; }
+            .slide-image-container { background: #526c79; padding: 10px; }
+            .slide-image-container img { width: 100%; height: auto; border-radius: 10px; }
+            .slide-text-container { padding: 20px; background: #333; color: white; font-size: 18px; }
+        }
+
+        /* CONTROLE DE OPACIDADE */
+        .fade-target {
+            opacity: 1;
+            transition: opacity 0.25s ease-in-out;
+            background: inherit; /* Garante que o container siga o fundo do pai */
+        }
+        .fade-out { opacity: 0; }
+
+        .dots-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+        .dot { cursor: pointer; height: 10px; width: 10px; background: rgba(255,255,255,0.4); border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: #007bff; width: 25px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="tutorial-card">
+    <div class="slide-content fade-target" id="content-area">
+        <div class="slide-image-container">
+            <img id="main-img" src="">
+        </div>
+        <div class="slide-text-container">
+            <h2 id="main-titulo" style="color: #007bff; margin:0 0 10px 0;"></h2>
+            <p id="main-txt" style="margin:0;"></p>
+        </div>
+    </div>
+    
+    <div class="dots-container" id="dots-holder"></div>
+</div>
+
+<script>
+    // Seus dados aqui (tutorialAndroid / tutorialPC)
+    const tutorialAndroid = [
+        { img: "print1.jpeg", titulo: "Android - Passo 1", txt: "Abra o Maps e pressione o dedo no local desejado." },
+        { img: "print2.jpeg", titulo: "Android - Passo 2", txt: "Toque nas coordenadas que aparecem para copiar." },
+        { img: "print3.jpeg", titulo: "Android - Passo 3", txt: "Cole no nosso site e gere os links." }
+    ];
+
+    const tutorialPC = [
+        { img: "pc-print1.jpg", titulo: "PC - Passo 1", txt: "Clique com o botão direito no local no Google Maps." },
+        { img: "pc-print2.jpg", titulo: "PC - Passo 2", txt: "Copie a URL completa da barra de endereços." },
+        { img: "pc-print3.jpg", titulo: "PC - Passo 3", txt: "Cole o link no campo indicado no site." },
+        { img: "pc-print4.jpg", titulo: "PC - Passo 4", txt: "Clique em 'Gerar Links de App'" }
+    ];
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const dados = isMobile ? tutorialAndroid : tutorialPC;
+
+    // Pre-load
+    dados.forEach(item => { const img = new Image(); img.src = item.img; });
+
+    const contentArea = document.getElementById('content-area');
+    const imgEl = document.getElementById('main-img');
+    const tituloEl = document.getElementById('main-titulo');
+    const txtEl = document.getElementById('main-txt');
+    const dotsHolder = document.getElementById('dots-holder');
+
+    let slideIndex = 0;
+    let timer;
+
+    dados.forEach((_, index) => {
+        dotsHolder.innerHTML += `<span class="dot" onclick="manualChange(${index})"></span>`;
+    });
+
+    const dots = document.getElementsByClassName("dot");
+
+    function updateContent(index) {
+        contentArea.classList.add('fade-out');
+
+        setTimeout(() => {
+            imgEl.src = dados[index].img;
+            tituloEl.innerText = dados[index].titulo;
+            txtEl.innerText = dados[index].txt;
+            
+            for (let d of dots) d.classList.remove('active');
+            dots[index].classList.add('active');
+
+            contentArea.classList.remove('fade-out');
+        }, 250);
+    }
+
+    function autoPlay() {
+        slideIndex = (slideIndex + 1) % dados.length;
+        updateContent(slideIndex);
+        timer = setTimeout(autoPlay, 5000);
+    }
+
+    function manualChange(index) {
+        clearTimeout(timer);
+        slideIndex = index;
+        updateContent(slideIndex);
+        timer = setTimeout(autoPlay, 5000);
+    }
+
+    // Inicialização
+    imgEl.src = dados[0].img;
+    tituloEl.innerText = dados[0].titulo;
+    txtEl.innerText = dados[0].txt;
+    dots[0].classList.add('active');
+    timer = setTimeout(autoPlay, 5000);
+</script>
+
+</body>
+</html>
