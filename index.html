@@ -126,43 +126,57 @@
         
         let nomeLocal = prompt("Dê um nome para este local (opcional):");
         
-        // Montagem da URL de forma ultra-segura para GitHub Pages
-        // Forçamos o endereço real que você definiu
         let urlBase = "https://j5r.github.io/localizacao/";
-        
         let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
         if (nomeLocal && nomeLocal.trim() !== "") {
             urlFinal += "&nome=" + encodeURIComponent(nomeLocal);
         }
 
-        // MÉTODO DE CÓPIA "BLINDADO"
+        // TÉCNICA FINAL: Textarea visível mas minúsculo
         const aux = document.createElement("textarea");
         aux.value = urlFinal;
         
-        // Tornar o elemento invisível mas funcional para o Android
-        aux.style.position = "fixed";
-        aux.style.left = "-9999px";
-        aux.style.top = "0";
+        // Estilos para garantir que o navegador "veja" o elemento e permita a cópia
+        Object.assign(aux.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '2em',
+            height: '2em',
+            padding: '0',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
+            background: 'transparent',
+            fontSize: '16px' // Impede o zoom no iOS
+        });
+
         document.body.appendChild(aux);
-        
         aux.focus();
         aux.select();
-        aux.setSelectionRange(0, 99999); // Seleção total para Mobile
+        
+        // Seleção específica para iOS/Android
+        const range = document.createRange();
+        range.selectNodeContents(aux);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        aux.setSelectionRange(0, 999999);
 
         let copiado = false;
         try {
             copiado = document.execCommand("copy");
         } catch (err) {
-            copiado = false;
+            console.error("Erro ao copiar:", err);
         }
 
         document.body.removeChild(aux);
 
         if (copiado) {
-            alert("✅ Link copiado!\n\n" + urlFinal);
+            alert("✅ COPIADO!\n\nAgora você pode colar o link onde quiser.");
         } else {
-            // Se o comando de cópia falhar (raro), o prompt permite cópia manual
-            prompt("Não foi possível copiar automaticamente. Copie o link abaixo:", urlFinal);
+            // ÚLTIMO RECURSO: Se a cópia automática falhar, o usuário copia daqui
+            prompt("Sua segurança bloqueou a cópia automática. Copie o link abaixo:", urlFinal);
         }
     }
   <\/script>
@@ -235,5 +249,6 @@ window.onload = function() {
 </body>
 
 </html>
+
 
 
