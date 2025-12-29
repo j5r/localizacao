@@ -127,13 +127,21 @@
         let nomeLocal = prompt("Dê um nome para este local (opcional):");
         
         // Montagem da URL tratando o caso de rodar direto do arquivo (origin null)
-        let urlBase = "";
-        if (window.location.origin === "null" || window.location.origin.includes("blob")) {
-            // Se estiver em Blob ou Local, você precisará ajustar para o seu domínio final
-            urlBase = "https://www.seuserver.com/localizacao.html";
-        } else {
-            urlBase = window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/') + "/localizacao.html";
-        }
+        // Substitua o bloco antigo da urlBase por este:
+let urlBase = "";
+
+// Verifica se estamos no GitHub Pages ou em um servidor real
+if (window.location.origin !== "null" && !window.location.origin.includes("blob")) {
+    // Captura o domínio + o caminho da pasta (ex: https://j5r.github.io/localizacao/)
+    const pathArray = window.location.pathname.split('/');
+    pathArray.pop(); // Remove o nome do arquivo atual ou o ID do blob
+    const folderPath = pathArray.join('/');
+    
+    urlBase = window.location.origin + folderPath + "/localizacao.html";
+} else {
+    // Fallback caso o navegador não consiga identificar a origem (ex: rodando localmente)
+    urlBase = "https://j5r.github.io/localizacao/localizacao.html";
+}
         
         let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
         if (nomeLocal && nomeLocal.trim() !== "") {
@@ -219,4 +227,5 @@ window.onload = function() {
 </script>
 
 </body>
+
 </html>
