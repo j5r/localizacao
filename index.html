@@ -126,47 +126,44 @@
         
         let nomeLocal = prompt("Dê um nome para este local (opcional):");
         
-        // Montagem da URL tratando o caso de rodar direto do arquivo (origin null)
-        // Substitua o bloco antigo da urlBase por este:
-// Substitua o bloco da urlBase por este:
-let urlBase = "";
-
-if (window.location.origin !== "null" && !window.location.origin.includes("blob")) {
-    // Captura o domínio + a pasta (ex: https://j5r.github.io/localizacao/)
-    // Como o arquivo é index.html, a URL termina na barra '/'
-    const pathArray = window.location.pathname.split('/');
-    pathArray.pop(); 
-    const folderPath = pathArray.join('/');
-    
-    // Adicionamos a barra no final para que o navegador entenda que é a raiz da pasta
-    urlBase = window.location.origin + folderPath + "/";
-} else {
-    // Fallback estático para o seu novo endereço padrão
-    urlBase = "https://j5r.github.io/localizacao/";
-}
+        // Montagem da URL de forma ultra-segura para GitHub Pages
+        // Forçamos o endereço real que você definiu
+        let urlBase = "https://j5r.github.io/localizacao/";
         
         let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
         if (nomeLocal && nomeLocal.trim() !== "") {
             urlFinal += "&nome=" + encodeURIComponent(nomeLocal);
         }
 
-        // Criar textarea para cópia (método infalível para Blobs)
+        // MÉTODO DE CÓPIA "BLINDADO"
         const aux = document.createElement("textarea");
         aux.value = urlFinal;
-        aux.setAttribute('readonly', '');
-        aux.style.position = 'absolute';
-        aux.style.left = '-9999px';
+        
+        // Tornar o elemento invisível mas funcional para o Android
+        aux.style.position = "fixed";
+        aux.style.left = "-9999px";
+        aux.style.top = "0";
         document.body.appendChild(aux);
+        
+        aux.focus();
         aux.select();
-        aux.setSelectionRange(0, 99999); // Para dispositivos móveis
+        aux.setSelectionRange(0, 99999); // Seleção total para Mobile
 
+        let copiado = false;
         try {
-            document.execCommand("copy");
-            alert("Link copiado com sucesso!\\n\\n" + urlFinal);
+            copiado = document.execCommand("copy");
         } catch (err) {
-            prompt("Copie o link abaixo:", urlFinal);
+            copiado = false;
         }
+
         document.body.removeChild(aux);
+
+        if (copiado) {
+            alert("✅ Link copiado!\n\n" + urlFinal);
+        } else {
+            // Se o comando de cópia falhar (raro), o prompt permite cópia manual
+            prompt("Não foi possível copiar automaticamente. Copie o link abaixo:", urlFinal);
+        }
     }
   <\/script>
 </body>
@@ -176,26 +173,33 @@ if (window.location.origin !== "null" && !window.location.origin.includes("blob"
     const lat = document.getElementById('lat').value;
     const long = document.getElementById('lon').value;
 
-    if (!lat || !long) return;
+    if (!lat || !long) {
+        alert("Preencha as coordenadas primeiro!");
+        return;
+    }
 
-    // Lógica do Nickname Uber
-    let parametroApelido = nomeDaURL ? `&dropoff[nickname]=${encodeURIComponent(nomeDaURL)}` : "";
-    const tituloB = nomeDaURL ? `Links para: ${nomeDaURL}` : "Direções";
+    // 1. Lógica do Nickname para o Uber
+    let parametroApelido = "";
+    if (nomeDaURL && nomeDaURL.trim() !== "") {
+        parametroApelido = `&dropoff[nickname]=${encodeURIComponent(nomeDaURL)}`;
+    }
 
-    // Substituições de links
+    // 2. Substituição dos links dos aplicativos
     const linksHtml = `
         <li>${__maps.replace(/{lat}/g, lat).replace(/{long}/g, long)}</li>
         <li>${__waze.replace(/{lat}/g, lat).replace(/{long}/g, long)}</li>
         <li>${__uber.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{nickname_param}/g, parametroApelido)}</li>
     `;
 
-    // Injeção de dados no script da Página B para o botão compartilhar funcionar
+    // 3. Montagem do HTML da Página B com os placeholders de Latitude e Longitude
+    // Note que aqui injetamos os valores que o botão de compartilhar vai ler depois
     let fullHtml = init
-        .replace("<h1>Para onde vamos?</h1>", `<h1>${tituloB}</h1>`)
+        .replace("<h1>Para onde vamos?</h1>", `<h1>${nomeDaURL ? 'Links para: ' + nomeDaURL : 'Para onde vamos?'}</h1>`)
         .replace("***", linksHtml)
-        .replace("{lat_placeholder}", lat) // Injeta a lat no script da B
-        .replace("{lon_placeholder}", long); // Injeta a lon no script da B
+        .replace("{lat_placeholder}", lat)
+        .replace("{lon_placeholder}", long);
 
+    // 4. Criação do Blob e Redirecionamento
     const blob = new Blob([fullHtml], { type: 'text/html' });
     window.location.href = URL.createObjectURL(blob);
 }
@@ -231,4 +235,5 @@ window.onload = function() {
 </body>
 
 </html>
+
 
