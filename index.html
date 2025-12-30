@@ -216,7 +216,7 @@
     // 3. Montagem do HTML da Página B com os placeholders de Latitude e Longitude
     // Note que aqui injetamos os valores que o botão de compartilhar vai ler depois
     let fullHtml = init
-        .replace("<h1>Para onde vamos?</h1>", `<h1>${nomeDaURL ? 'Links para: ' + nomeDaURL : 'Para onde vamos?'}</h1>`)
+        .replace("<h1>Para onde vamos?</h1>", `<h1>${nomeDaURL ? 'Links para: <br><strong style="color:#44aaff">' + nomeDaURL + '</strong>': 'Para onde vamos?'}</h1>`)
         .replace("***", linksHtml)
         .replace("{lat_placeholder}", lat)
         .replace("{lon_placeholder}", long);
