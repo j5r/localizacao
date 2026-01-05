@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localização</title>
+    <title>Gerador de Localização</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; }
         .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
@@ -11,256 +11,176 @@
         .campo { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; color: #666; font-weight: bold; }
         input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        
-        .btn-colar { background-color: #9dd89d; margin-bottom: 1.5rem; color: #333;}
-        .btn-gerar { background-color: #28a745; font-weight: bold; }
-        
-        button { width: 100%; padding: 12px; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: opacity 0.3s; }
+        button { width: 100%; padding: 12px; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: opacity 0.3s; margin-bottom: 1rem;}
         button:hover { opacity: 0.9; }
-        
+        .btn-colar { background-color: #9dd89d; color: #333; }
+        .btn-gerar { background-color: #28a745; font-weight: bold; margin-bottom: 0; }
         .divider { text-align: center; margin: 10px 0; color: #aaa; font-size: 0.8rem; }
+        .destaque { color:#a82424; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Localização</h1>
-    
-    <button class="btn-colar" onclick="colarDoClipboard()">📋 Colar link do Maps <br><strong style="color:#a82424">(clique aqui para colar)</strong></button>
-    
-    <div class="divider">OU PREENCHA MANUALMENTE</div>
-
-    <div class="campo">
-        <label>Latitude</label>
-        <input type="text" id="lat" placeholder="Ex: -20.456662" oninput="tratarInput(this)">
-    </div>
-    <div class="campo">
-        <label>Longitude</label>
-        <input type="text" id="lon" placeholder="Ex: -54.575978" oninput="tratarInput(this)">
-    </div>
-
-    <button class="btn-gerar" onclick="gerarPaginaB()">Gerar Links de App</button>
-</div>
-
-<script>
-    // Função para tratar entrada manual (vírgula por ponto)
-    function tratarInput(el) {
-        el.value = el.value.replace(',', '.');
-    }
-
-    // FUNÇÃO PARA LER O CLIPBOARD E EXTRAIR COORDENADAS
-    async function colarDoClipboard() {
-    try {
-        const texto = await navigator.clipboard.readText();
+    <div class="container">
+        <h1>Localização</h1>
+        <button class="btn-colar" onclick="colarDoClipboard()">
+            📋 Colar link do Maps <br><strong class="destaque">(clique aqui para colar)</strong>
+        </button>
         
-        // 1. Tenta o padrão de alta precisão (!3d...!4d) - Comum no Chrome/Desktop
-        const regexGoogle = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g;
-        const matchesGoogle = [...texto.matchAll(regexGoogle)];
+        <div class="divider">OU PREENCHA MANUALMENTE</div>
+        
+        <div class="campo">
+            <label>Latitude</label>
+            <input type="text" id="lat" placeholder="Ex: -20.456662" oninput="this.value = this.value.replace(',', '.')">
+        </div>
+        <div class="campo">
+            <label>Longitude</label>
+            <input type="text" id="lon" placeholder="Ex: -54.575978" oninput="this.value = this.value.replace(',', '.')">
+        </div>
+        
+        <button class="btn-gerar" onclick="gerarPaginaB()">Gerar Links de App</button>
+    </div>
 
-        if (matchesGoogle.length > 0) {
-            const alvo = matchesGoogle[matchesGoogle.length - 1];
-            document.getElementById('lat').value = alvo[1];
-            document.getElementById('lon').value = alvo[2];
-            return; // Sai da função pois já resolveu
+    <script>
+        // --- LÓGICA PRINCIPAL ---
+        
+        // Utilitário para substituir {chave} pelo valor no objeto
+        const formatar = (str, dados) => str.replace(/{(\w+)}/g, (_, k) => dados[k] !== undefined ? dados[k] : '');
+
+        async function colarDoClipboard() {
+            try {
+                let texto = await navigator.clipboard.readText();
+                texto = texto.replace(/\s?,\s+?/g, ' ').replace(/,/g, '.').replace(/\s+/g, ', ').trim();
+
+                const matchesGoogle = [...texto.matchAll(CONFIG.regex.google)];
+                if (matchesGoogle.length > 0) {
+                    const alvo = matchesGoogle[matchesGoogle.length - 1];
+                    definirCoords(alvo[1], alvo[2]);
+                    return;
+                }
+
+                const todosNumeros = [...texto.matchAll(CONFIG.regex.numeros)];
+                if (todosNumeros.length >= 2) {
+                    definirCoords(todosNumeros[todosNumeros.length - 2][0], todosNumeros[todosNumeros.length - 1][0]);
+                } else {
+                    alert("Não encontrei coordenadas. Tente copiar os números decimais diretamente.");
+                }
+            } catch (err) {
+                alert("Erro ao ler área de transferência. Verifique permissões.");
+            }
         }
 
-        // 2. Fallback: Procura por qualquer par de números decimais - Comum no Android/Manual
-        // Busca números que podem ter sinal de menos e ponto decimal
-        const regexNumeros = /(-?\d+\.\d+)/g;
-        const todosNumeros = [...texto.matchAll(regexNumeros)];
-
-        if (todosNumeros.length >= 2) {
-            // Pegamos os dois últimos números encontrados (Latitude e Longitude)
-            // No Android, se você copiar "-20.529, -54.613", eles serão os únicos
-            const lon = todosNumeros[todosNumeros.length - 1][0];
-            const lat = todosNumeros[todosNumeros.length - 2][0];
-            
+        function definirCoords(lat, lon) {
             document.getElementById('lat').value = lat;
             document.getElementById('lon').value = lon;
-        } else {
-            alert("Não encontrei coordenadas. Tente copiar os números decimais diretamente do Maps.");
         }
 
-    } catch (err) {
-        alert("Erro ao ler área de transferência. Verifique as permissões.");
-    }
-}
+        function gerarPaginaB(nome = "", contato = "", link = "") {
+            const lat = document.getElementById('lat').value;
+            const long = document.getElementById('lon').value;
 
+            if (!lat || !long) return alert("Preencha as coordenadas primeiro!");
 
-    // TEMPLATES DA PÁGINA B (MANTIDOS CONFORME O SEU PROJETO)
-    const __maps = `<a href="https://www.google.com/maps/dir/?destination={lat},{long}&dir_action=navigate&api=1&travelmode=driving"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAA7VBMVEX////k7vyFrfE0geoUceiStfeOtPIAZuYAbecac+gzffAqe/Odvflwm+cAa+pChfR+qff2qKHSOkYwb9j+9vbpJgvqPi/qQSdXacRRjfVCg/oajKz1/PL2t7PpNSTqQzWBaK7A2P8+kMkipTuz27zwf3f/06K1zPpAi9s0qFMsp052wYnubGLpODb3ngD/++M0plwtpk5btnL0jRz7vAT+89bf6f8qnnDpMy3xeCX80Gcgo0btVhb7ugD8y1H+6bulwWq+sg393pfauBil1LD8xTTsug1AqU9RsmpXq0nm9Op0rUDF5M3E05iSzKBcyPClAAAA70lEQVR4AWKgOQC0PhaJDcQwAFS6YWZmlsOM7pbD+f9zuvJNzuaWuRhG6HgznE7D5bBzbo/X6XP6/YHgowuFfRb+SCQSiOouFk84LRkh9NxkKp3JOp25HKXmC0UmS+VKulytAdQsV280mWylK5Vym26dQBdFj8l+ujIYjtRCxlhMppoczOYLui1XAjXZWm/m8y3dejvECS9b2s/nc/lumh8CEXdNvoqcE/JzgiSB80VWfqNyP6DxK+fy70BucgSd0VzOT6g4wwOmvCi1u4INt51yd7BlOkG2P+MsEMUZnnAXghflqTyRczzCc85neA3/bO8jQZ8yDjIAAAAASUVORK5CYII=">Google Maps</a>`;
-    const __waze = `<a href="https://waze.com/ul?ll={lat},{long}&navigate=yes"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAnFBMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAGBgYkJCQPDw8AAAAAAAAAAAARERGHh4ff39/////v7++bm5ssLCy/v78dHR0AAAAAAABAQEBjY2NTU1MvLy8AAACLi4sAAACPj4/Pz89eXl4vLy9fX18PDw+vr69vb28AAAA/Pz+fn59/f39PT08fHx8fHx9PT093d3cAAACsrKw9PT2OeT7UAAAANHRSTlMAMJDQ/+CgUPbg7nAQsPDu////9uj/6/Bg6+vt60D3IP//5P//////wP///+j/7f/wgPXnWPjZAAAAAVBJREFUeAGVkwVyxDAQBA1thngVhmNm+v/fUluW6zjQB4ZpseSc4no+ShBGzg2iAIiTJEnVyS7jvIDyoRLFPD6B757XHlA+ypHnF17fTvNX3o2c8QFHIw/4lEseeXUbIeRLrvnAt3mL2MgNXrBjKWjLLZ4JHKVDLDWmK5ZeT/+fiFTI6Nt8wNDmo5Eaj4R1F8ciSjViYESZwERL1G1MMU3Fs+ZuWFeVosIrco8EFfiHYKShuinMR1XTh4EosQo5qVgWzSjmjPSm0snu+CzFYgasxiLVEOb6/IDnBLA2cjRQGM1FKXEdLtZhvlkxm1R2wQOdpa3cwZS6FC705DbvTHWQO+LbxidBbrdTvBdzAJbmGJuv444L4X2Nctx47Rg/Px6ZVyxjDc24H0OheUPuc4V28Mj0NyFDQcfdoiY7psc2psfaXvPrs0uY623uqdoM8RsjPzADs0ZfiwAAAABJRU5ErkJggg==">Waze</a>`;
-    const __uber = `<a href="https://m.uber.com/ul/?action=setPickup&dropoff[latitude]={lat}&dropoff[longitude]={long}{nickname_param}"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACs0lEQVRYhc2Xv0sjURDHP5sfoo3BQjgkSlLYSLBTsBILKzvThFX80YSAYuMfcKDWNjbaGLDQcIXYi4X2NhGuSKFCgqIgeoKrZo3fK5LsRTfxzsNzb2CKt/PefL8z8+axA24ZBTLAd+AGKALPgN6pz5WzNxVfmYrvhvIFOPsLoPfqWQXLBf6vgV/rCxKfEXm9TADlunw2eFVH/cBXIPa6Jp8lPqDXK3Cg16DcJiGPCPwwKPdq0CMCtkH5wTA8IiCD8m30THy1i+7ubkzTdG0yTZNIJMLIyAh9fX0fTsLpy/n5eUly9askJZNJnZ6eKp1Of+hb8CIDtm03ZGnbNo+Pj9zf3wMQjUYb7g2Hw38cve/3W35JqVQiFothWRbHx8dIYn193bEvLi4iiXw+jyRmZmYAuLi44PDwEElMTEy4/DrpmJuba1iC6elpZbNZSVIikRCg4eFhSdLCwoLi8bgkaXBwUICSyaTj6/z8XIVCQdFo1OU7UMvEMN7uxqamJra2tshkMgDs7u6ysrLC+Pg4/f39FAoFpqamSKVS3N3dYds2y8vLGIZBOp3m5OTE5fNFCW5vbxuCl4PBuQNVsSyLYDBIIBDg4eEBy7KwLAuAtbU19vb28Pv9bwbmSvf29raz3tnZkSRNTk7q6OhIpVJJ4XDYsReLRa2urmp2dlaS1N7e7tg2NjYE6OrqSktLS3W7IPCajWmabG5uOhHncjmgnP6WlhZyuRz5fJ7r62va2to4ODgglUoBMDAwwOXlpWPb398HoLm5mUDABVU/A1WNx+MaGhoSoK6uLgWDQXV0dDj2sbEx9fT0uM6FQiElEglFIhHnW2dnp1pbW+vi/BdPsZcE5AOePCTw5AMsDwlYPmr+Tj2QMx+Q9ZBA1gd885CAg+3pYAL/wWhWJeHZcFornzqe/wReLF3cSdf4HAAAAABJRU5ErkJggg==">Uber</a>`;
-    const __apps = `<a href="geo:{lat},{long}?q={lat},{long}{geo_nickname}"><img src="data:image/png;base64,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" alt=""></img>Outros Apps Android</a>`;
-    const __apple = `<a href="https://maps.apple.com/?saddr=Current%20Location&daddr={apple_nickname}X@{lat},{long}&dirflg=d"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC5UlEQVR4Aa1XQ3hkQRjc+ynX2OZtbfu+tm3b1nlt27a9O4qNS5xxbdd+cTKvXydT31fJoPuvmvf6/ejw86dBlX6CwwQXCq6t5cLaz/xV4+ld6F8r9NdgsCAjIwf5+UUoLCwBydf8jN+JNQbBddzjDQM+gocErRSyWm2QgWu4lntq9/q01UAfwYKCgmK43W6ognu4lzEE+6oamCboLC0tR3vBGIwlOF2vgZm5uQWoqamBXrhcLpw5cxZ79uxFKxCxrGBMxpYZ6Eu33KAXNDp+/AQEBgbzv8Y6Kxi7+e1ofuAKVS/7zp27KE7i6dNnem5HAbVaM3CYh0YF/PWRkdEUpxHoQe3BPNTcQJCgTc9pT0tLh8VigdPpBLFv3368evVKBC7A16/fkJmZKX06qCXo39jAej67Wnjx4iVGjBiJ0NBwBAeHYsCAgTh48BCuXLmCKVOmIioqBrwS4eGRGDduPMxmMzyBWtRsbMCglWSePXuOkJAwCuhmnz79YLVaPSUrGjDWGQhgCvWEyspKdOrURUk8JiYO799/0Exg1KQ2DQxjHveEO3fuKomTPBcyUJPaNLCQxcQTNm3arGzAYDBABmoK7UU0sE7rAC5dukxJPCgoRPy6DMhATWpLDWzbtl35Cty//0DBgOQW3LhxU9nAsGEj4HA4dN0CySHkwvy6bKfECRMmISsrS34IZY8hMXnyFAZV5rFjx6WPoa5E9PnzZ2XxpKQUlJaWaiUik1IqXrBgkZKB06fPwBOKiv4fwA3Ni5FdK3NVVFSgd+++usRnzJilXIzII7JynJOTAxaa7t17Yt68+bh37z6+fPmKCxcuYvToMejVqzdWrVrNMi0rx4cVGxIFKDQkCi2ZAhRaMklTavWqeF6epCltxuneasvLyurb8lmqg0lfLw4m/dozmh0RtBUV6R/NuJZ7avf6eGs4ZeIwMoVmZrYcTvkZv+MarlUZTlUZIDi8diRfX8uFtZ8FqMb7Bx+2VJbBTrlcAAAAAElFTkSuQmCC"></img>Apple Maps</a>`
-    const __indrive = `<a href="geo:{lat},{long}?q={lat},{long}{indrive_nickname}"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADd0lEQVR4AcWXg5KkSxCF5z7CfYTLYNvGNda2bdu2bdu2bdtWb3DZMWfzNGr5/9Pjjvhmukt5qjKzkPWtz8Knxu8WPTH9KLQWNgjXhJjwWogL2QK+gGXxVJuXwnVhY3IMGUvGzMrkI42/F9oIF4T3AvLJ+9RYbTh2TsZ/FdakZoICJp4a+1c94/sEFDL7aOtby75aQBGxmjY/FdBGLXvREKfNtPEfhfNajRc/M2HJc5L8rsqfStkzhWrD8gxF0OaPFNBaK9oXPjKhz2oHWo5zE/Re6cCCh0kjU85b0GqCG81HedB8jAftprrRd60Dk89asPAxxWaUHa0oYP03G4iRObfN+L9WECZ7FCZHFP9UD2L2TTOWvDCh3zoHbN4ozE7BFYVFsPujiJQKo35/LyactGYiYj0FXNMT8F/NII0Q/F0tiFk3kgI4W5tPDLujsBJPEv6moD8qhDBoiz0nl1yjgJhWg7l3zSjXNABHMAJSumEAFEVfD95qh//vMDy/ReAWHAGugpASQxGR0mGM3GfTW4kYBbzWWyYu5bBddpAJJ6ygf1k+T8SNOWzDqAM2jNxvQ//1DjQY4KUoJYKrVr5ZUvSib6/E66yc0o+zXRYzEi79lxlCVBawbMBGO0IllAiuHN2l6r8gTgHZmgJktuOPWzF4mx1k3DG1AppQTIcZLgaoWoU6vbxa7bOz9Aabe8eMMo0DYHSTUg10l1OtypRzFvpfBeT/dYKa/ZQAzSyoFVSp9k8qC3QEqOAtWT8A9mNg/l4+hOlXLFicRwEqz7kPzLqZgYA7IqBeQPX7vUIRCqALJp62qkBk3xJ1xQV3tF2QXVACWM5ZthrvZgCqIKzbRz8I43kToNJPwXOi+xInfH9FVBo6QxH036Cfhq9zK4CzpJ9H7LNxg+KWiy7znajawQd3RBnn7FGxlZ9tdTeiWG4FcDY06v0jAleY23REbb/WT4z/Vi6E0Ydy3oqvZSyAaZg+DWV3s/uUQQXbkb+rBjFsp13POLlOARvydByv52moDFIIV4I5jybDPLwXKOM6bMjzhWTaRQvaT3eh9SQ32kx2o/NcFwZttmOqlKduTJlcSFpTwE95vpI9V+T1SvZT+l7YtjgupV9ey9cUoYA1tFm8D5Pif5rpP05bF8vjVIl4ZP7yeX49l8/zWKrPhvTzfOFj8zef5x8ACpF8DThKn2EAAAAASUVORK5CYII="></img>InDrive (Android)</a>`;
+            const encName = encodeURIComponent(nome || "");
+            const dados = {
+                lat, long, 
+                link: link ? formatar(CONFIG.templates.link, { link }) : "",
+                contato_numero: contato,
+                
+                // Variáveis específicas dos templates de apps
+                maps_nickname: encName,
+                geo_nickname: encName ? `(${encName})` : "",
+                apple_nickname: encName,
+                indrive_nickname: encName ? `(${encName})` : "",
+                nickname_param: encName ? `&dropoff[nickname]=${encName}` : ""
+            };
 
-    const init = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selecionar Aplicativo</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; background-color: #f9f9f9; padding: 20px; }
-    ul { display: flex; flex-direction: row; list-style-type: none; padding: 0; flex-wrap: wrap; justify-content: center; }
-    li { margin: 10px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 120px; }
-    a { align-items: center; display: flex; flex-direction: column; text-decoration: none; color: #333; font-weight: bold; font-size: 14px; }
-    img { width: 45px; margin-bottom: 8px; }
-    .acoes { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-    
-    /* Estilo da nova área de link */
-    #area-link { 
-        display: none; 
-        margin-top: 20px; 
-        padding: 15px; 
-        background: #e9ecef; 
-        border-radius: 8px; 
-        width: 100%; 
-        max-width: 300px; 
-        border: 1px solid #ccc;
-    }
-    #input-link { 
-        width: 90%; 
-        padding: 10px; 
-        margin-top: 10px; 
-        border: 1px solid #aaa; 
-        border-radius: 4px; 
-        font-size: 14px; 
-    }
-    
-    .btn-share { padding: 12px 20px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; width: 220px; }
-    .btn-voltar { padding: 8px 15px; border: none; background: #666; color: white; border-radius: 5px; cursor: pointer; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <h1>Para onde vamos?</h1>
-  <ul>***</ul> 
-  
-  <div class="acoes">
-    <button class="btn-share" id="btn-share" onclick="compartilharLink()">🔗 Gerar link para compartilhar</button>
-    
-    <div id="area-link">
-        <label style="font-size: 12px; font-weight: bold; color: #555;">LINK PRONTO:</label><br>
-        <input type="text" id="input-link" readonly onclick="this.select()">
-        <p style="font-size: 10px; color: #777; margin-top: 5px;">Toque no link acima para selecionar e copiar.</p>
-    </div>
+            // Gera lista de apps
+            const listaApps = Object.values(CONFIG.apps).map(tpl => `<li>${formatar(tpl, dados)}</li>`).join('');
 
-    <button class="btn-voltar" onclick="window.history.back()">Voltar e alterar</button>
-  </div>
+            // Monta HTML final
+            const titulo = nome ? `<h1>Links para: <br><strong style="color:#44aaff">${nome}</strong></h1>` : CONFIG.html.tituloPadrao;
+            const contatoHtml = contato ? formatar(CONFIG.templates.contato, dados) : "";
+            
+            const conteudoLinks = `<div class="links">${contatoHtml}${dados.link}</div>`;
+            
+            const htmlFinal = formatar(CONFIG.html.base, {
+                titulo: titulo + '<br>' + conteudoLinks,
+                lista: listaApps,
+                lat, long // placeholders para o script de compartilhamento interno
+            });
 
-  <script>
-    function compartilharLink() {
-        const lat = "{lat_placeholder}";
-        const lon = "{lon_placeholder}";
-        
-        let nomeLocal = prompt("Dê um nome para este local (opcional):");
-        
-        let urlBase = "https://j5r.github.io/localizacao/";
-        let urlFinal = urlBase + "?lat=" + lat + "&long=" + lon;
-        
-        if (nomeLocal && nomeLocal.trim() !== "") {
-            urlFinal += "&nome=" + encodeURIComponent(nomeLocal);
+            const blob = new Blob([htmlFinal], { type: 'text/html' });
+            window.location.href = URL.createObjectURL(blob);
         }
 
-        // Exibe a área do link e preenche o input
-        const area = document.getElementById('area-link');
-        const input = document.getElementById('input-link');
-        const btn = document.getElementById('btn-share');
+        // --- INICIALIZAÇÃO VIA URL PARAMETERS ---
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const lat = params.get('lat');
+            const long = params.get('long');
+            
+            if (lat && long) {
+                definirCoords(lat, long);
+                
+                let contato = decodeURIComponent(params.get('contato') || "").replace(/\D+/g, '');
+                if (contato) {
+                    if (!contato.startsWith('55')) contato = '55' + contato;
+                    if (contato.length !== 13) contato = "?text=Numero%20invalido";
+                }
 
-        area.style.display = 'block';
-        input.value = urlFinal;
-        
-        // Rola a página para baixo para mostrar o link
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        
-        // Opcional: Tenta selecionar automaticamente para facilitar
-        input.select();
-    }
-  <\/script>
-</body>
-</html>`;
+                setTimeout(() => gerarPaginaB(
+                    params.get('nome'), 
+                    contato, 
+                    params.get('link')
+                ), 500);
+            }
+        };
 
-    function gerarPaginaB(nomeDaURL = "") {
-    const lat = document.getElementById('lat').value;
-    const long = document.getElementById('lon').value;
-
-    if (!lat || !long) {
-        alert("Preencha as coordenadas primeiro!");
-        return;
-    }
-
-    // 1. Lógica do Nickname para o Uber
-    let parametroApelido = "";
-    let maps_nickname = "";
-    let geo_nickname = "";
-    let apple_nickname = "";
-    let indrive_nickname = "";
-    if (nomeDaURL && nomeDaURL.trim() !== "") {
-        parametroApelido = `&dropoff[nickname]=${encodeURIComponent(nomeDaURL)}`;
-        maps_nickname = `${encodeURIComponent(nomeDaURL)}`;
-        geo_nickname = `(${encodeURIComponent(nomeDaURL)})`;
-        apple_nickname = `${encodeURIComponent(nomeDaURL)}`;
-        indrive_nickname = `(${encodeURIComponent(nomeDaURL)})`;
-    }
-
-    // 2. Substituição dos links dos aplicativos
-    const linksHtml = `
-        <li>${__maps.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{maps_nickname}/g,maps_nickname)}</li>
-        <li>${__waze.replace(/{lat}/g, lat).replace(/{long}/g, long)}</li>
-        <li>${__apps.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{geo_nickname}/g, geo_nickname)}</li>
-        <li>${__apple.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{apple_nickname}/g, apple_nickname)}</li>
-        <li>${__uber.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{nickname_param}/g, parametroApelido)}</li>
-        <li>${__indrive.replace(/{lat}/g, lat).replace(/{long}/g, long).replace(/{indrive_nickname}/g, indrive_nickname)}</li>
-    `;
-
-    // 3. Montagem do HTML da Página B com os placeholders de Latitude e Longitude
-    // Note que aqui injetamos os valores que o botão de compartilhar vai ler depois
-    let fullHtml = init
-        .replace("<h1>Para onde vamos?</h1>", `<h1>${nomeDaURL ? 'Links para: <br><strong style="color:#44aaff">' + nomeDaURL + '</strong>': 'Para onde vamos?'}</h1>`)
-        .replace("***", linksHtml)
-        .replace("{lat_placeholder}", lat)
-        .replace("{lon_placeholder}", long);
-
-    // 4. Criação do Blob e Redirecionamento
-    const blob = new Blob([fullHtml], { type: 'text/html' });
-    window.location.href = URL.createObjectURL(blob);
+        // --- CONFIGURAÇÃO E TEMPLATES (MANTIDOS) ---
+        const CONFIG = {
+            regex: {
+                google: /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g,
+                numeros: /(-?\d+\.\d+)/g
+            },
+            templates: {
+                link: `<a href="{link}" target="_blank"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAbCAIAAADganh7AAAE60lEQVRIDa3BC0yUBRwA8P//vu+77zvuEPNS1EDUpjk132mWphChgHCiICFCZCBuRm1uWsMHKE4kECvhdCI50qFz+ZxauZlhaCJPeapodHYixEMO7v3dff+MjQ2GzrP1+yERwf8NiQheUpNOf/HyNd1fj4HI22vksiWLxo/1hn6QiMBlHZ1d+UdP/15W1d7+xOl0AiAjk72qHrp44by46OUe7irohUQErmlpbc/WFvxaXKp0U0iSpBB4ALBYbQzD9BhNgf4Lt21K5DgOAJCIwAWdTwy7Mg+UlNcMUalsNvvsWVOXB/kC4LlLv1TV3kFAm922KWlt8JJFAIBEBC9i6DampueWVdXyvNxuF9euWbE6PFgu5wBAFB3Z2oKLPxch4oTxY3Kytgo8j0QEL9L4QJfwWYqhxzh0iCpu9fLYKA0iQp+6O/e3pH3zpKt75Ah1Vtomb69RSETwIja7ePj7U+WVtb4L58Z8GAoD9RhNG5O/utP4h+dw9c7kpMmTXkciguezWKw9RjMiKASB41iel8MgJeXVqXu0FrPV01O9b/eXo0cORyKCZzGZLNdulJ27eKW90yBjkJHJ3pk3MzTQ18d7NPRjsVhT0nNLymuIpDcnT9yX/oWc45CIYJAmnX7/ocKKqnoiySkRkcQyLAENe8UjNjI0LMQfEQGgo9Ow70DB9ZtVCCDnuV1bkubMnAoASEQwkE7fnJqee+/+nwLPE9AYr1EKntc3txqMJrvNrlYP1WZt9/Ee1WXoztx/5OpvpW4KXnQ44mPCYyJDoBcSEfSjb27J+Dq/srpBEASGkUWEBkSuCHR3V96qqM4/eqbh7oNpUybuSd0o2sXMnCNFxaVKNzfR4YiOCI6PDYc+SETQ5++2zu3pOXUNjQpBkCQpKTFaE+Snf9QiOhzjfLwsVpvu4aOxY7ycTmda5sHrJRUKQbBYrfExK9dEhjKMDPogEUGvxy1tOzK0DXcfsCyLiJ+vXxMS6Ft0vXR3dh4CBPi9Gx2xzHOE+u79ppxDx2saGjmGsYviqrCliXERLMtCP0hEANDa1pGSnltb3yjn2KeSEqNDli4GgGMnL2TtP+IxRAUAXqM9PdxVrW0d7Z1dDMOIdjEqPGjdx6tYhoGBkIisNrs2r/CH85dVKiUQrIuLCNcEQK+W1nbt4ePFNysdTgdJ9JSMkQGAu0oZrvkgNlLDsAwMgkR0o6Ry665vZYyMCDbER60I8Yd+7HaxvKr+5JkfH+ofy2QoEcycNilCs+SNCePgOZCITp75KSevEBFnT5+SsWMjx7EwSI/RLDmdZouV4zj1MA9EhOdDIso/dvroifOSJH0Ss/KjKA0M9Ki5NSev0NBtjIkMmT93BrgAiej4qUsHvztBhIsXvLUz+VPoR9/ckp59uKyyzmQ2h4X4pyUngQuQiK4UlezIyJVznJzjtm1eP3/uDOjVpNPvzSmouF2nVCqdDseGhKiVoQHgAiQik8mcmqG9WXpb6abgODY4YNGC+bNq6hvPXrjS2t7Jc6zFZktKiA5b9j7LsuACJCIAqK1v3Jyyt7vHKJdzCMALgtVqI4mckoSIGxKiwjUBMkRwDRIR9Cq/XV9QeLbhXpPZZCb4lyDw43xeCw301QT5wctAIoI+drt4q7z6anGpobuH5+Vvz5nu9948pZsCXhISETwDASD8V/8AXUpd6S35RhsAAAAASUVORK5CYII="></img>Abrir site</a>`,
+                contato: `<a href="https://wa.me/{contato_numero}" target="_blank" style="color:#0CC143;text-decoration:none"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAIAAABLixI0AAAE90lEQVQ4Ea3BfUyUdRwA8O/vued57p574Y473g4ROFEgwJc0XyhLRzWxNIhpGi1tKZZOUMp8SZ1kbtZsKphSkpBNEWdLJWOmIlAuX8plQiogcZwo3nEc3HGvz3PP821jY9PpNf/o8yGICI9zj3dYhN7LntZewckSxsBoYll9mjw+ltFrZBw8DkFEeFiz13zY0dToaXYqeSAECAAhAAgIkpsfrzDlqKe8Hp6ppOTwMIKIMMwj+St7zx5xXxhQBhROkqlMSVLEjGQjOcL2B93t/rsX3DfvKQdBlKbBmDVRuRnKBHgAQUQYYg+6Snqq66mblEtcYnhpvm56BB3GUSwME1FyiO7f3De+c5y/wdkMHsWmiHnZumdgGEFEAHBL/vWWqnr2VqxHU2J883l1OoTmkfx7bacq/U0Got5hWPysOhWGEEQEgF3Wk/v58yMF3Zex7yUrYuEJlNvqSv2n4/3ag6ZiI6MHAIKI13ydSyylPiq4L3rZzLBxCFjd19QiWPI0mZNVYyAECfDj7oO17PVFYuZ643wAIEFJ3NZz9Ch9ZZY/bVd8AQDUDlzefP+wYKBn+9O2j1jMUgyE0OIzL+4qFVE8nrTRxEYTKz+Qe/vTAcZfZSycqkoBgCLL/rOyv9Er6IJcRWLhWC4RQhBRWttdVUddX8Vmvx85m1z1tOf3laUHjAdMRTqZCgBWWsrrqZvSoCCXZBWJRVNVyRBajeOXkv6jEyChJmktqbY3bg38sJBM2xSzQEYoANhnqyt1ngIZtVSZVRydSxMKQvvd215g3qOTqWpHbyZ7rD/uDZ5dQb9cGDUHhtwR7O92lnZrBheIU7bE5RP4Lx2B+4s6d0ogVZs+IuW9daWB08vorOLoHBh22nn1Q+u3LEtv1M6bF/4chNbh73nbvJMAHEvaQI73X9zgrcnDiZ/EvkUTGQzbbT35tVDPemGVfm6+fqaCYv7wtNd7rs9ST0znRjKEhiFXvbeXmMv0tObk6E3khs+Sd+/zVMlYaVoVLlPDMB6DpbbaA94GAMyi0rO1Ew/Yz7QyNrmXvBo2aU10np7WAMChvsZtzu+nUynfJBYShzCY/88OM9VXaVyZqUqFB4goVfWdK+s/JagokFDyB0GQiIoJ89KHTGuS5bE8Bldb9jfQrRu4nEX6LCKhVGat/UpsyORN5fEr5BQDD7vkvlUz8GuTq8ULASCEJXRhxJx3DC+yhG50Na+2V3ICfWzUujgmgiDiJU9rQdcejrANKdtVlBweIWDQzNuueNt4KTieM03gRlGE3OF7C7sr2pS9S2HGBzG5AEAQ8YzrzyJrxWR6dGViEUNoeAJm3rrlbvUVpSVtMHJvwvIYJhwACCJW2s99If1UgDOLo3PgCdQP/rXTeqJT6xzpCdsds/QpRRwMIYi4tefIEenSOsVrU1TJ13wdl91t9qArWzvpBVWGnlarZAoKSAAFl+hrDXQfd1z82XdN0tKpvqiSyIXjVCYYRnwSv7Kr/AK2Kb0yDy1QGgYkAAIgIuuGccqEJLkxjFKaA7YWX9ddcMh0HDXAz1VPXh75SjwbCQ8gNsH5RsdnPQq3ykulyEekcHHJ8hFeMdDobu7k79uIW6ZmAREQUEKDTzEjbOws9dMzNBnwCGIPuk70X8zgEuNYQ7hMraTkMMQrBQYlnzvo6xH7rfyAjlZG0NooWmtk9BACQUT4n/wL7/xFSjCbdFoAAAAASUVORK5CYII="></img>WhatsApp</a>`
+            },
+            apps: {
+                maps: `<a href="https://www.google.com/maps/dir/?destination={lat},{long}&dir_action=navigate&api=1&travelmode=driving"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAA7VBMVEX////k7vyFrfE0geoUceiStfeOtPIAZuYAbecac+gzffAqe/Odvflwm+cAa+pChfR+qff2qKHSOkYwb9j+9vbpJgvqPi/qQSdXacRRjfVCg/oajKz1/PL2t7PpNSTqQzWBaK7A2P8+kMkipTuz27zwf3f/06K1zPpAi9s0qFMsp052wYnubGLpODb3ngD/++M0plwtpk5btnL0jRz7vAT+89bf6f8qnnDpMy3xeCX80Gcgo0btVhb7ugD8y1H+6bulwWq+sg393pfauBil1LD8xTTsug1AqU9RsmpXq0nm9Op0rUDF5M3E05iSzKBcyPClAAAA70lEQVR4AWKgOQC0PhaJDcQwAFS6YWZmlsOM7pbD+f9zuvJNzuaWuRhG6HgznE7D5bBzbo/X6XP6/YHgowuFfRb+SCQSiOouFk84LRkh9NxkKp3JOp25HKXmC0UmS+VKulytAdQsV280mWylK5Vym26dQBdFj8l+ujIYjtRCxlhMppoczOYLui1XAjXZWm/m8y3dejvECS9b2s/nc/lumh8CEXdNvoqcE/JzgiSB80VWfqNyP6DxK+fy70BucgSd0VzOT6g4wwOmvCi1u4INt51yd7BlOkG2P+MsEMUZnnAXghflqTyRczzCc85neA3/bO8jQZ8yDjIAAAAASUVORK5CYII=">Google Maps</a>`,
+                waze: `<a href="https://waze.com/ul?ll={lat},{long}&navigate=yes"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAnFBMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAGBgYkJCQPDw8AAAAAAAAAAAARERGHh4ff39/////v7++bm5ssLCy/v78dHR0AAAAAAABAQEBjY2NTU1MvLy8AAACLi4sAAACPj4/Pz89eXl4vLy9fX18PDw+vr69vb28AAAA/Pz+fn59/f39PT08fHx8fHx9PT093d3cAAACsrKw9PT2OeT7UAAAANHRSTlMAMJDQ/+CgUPbg7nAQsPDu////9uj/6/Bg6+vt60D3IP//5P//////wP///+j/7f/wgPXnWPjZAAAAAVBJREFUeAGVkwVyxDAQBA1thngVhmNm+v/fUluW6zjQB4ZpseSc4no+ShBGzg2iAIiTJEnVyS7jvIDyoRLFPD6B757XHlA+ypHnF17fTvNX3o2c8QFHIw/4lEseeXUbIeRLrvnAt3mL2MgNXrBjKWjLLZ4JHKVDLDWmK5ZeT/+fiFTI6Nt8wNDmo5Eaj4R1F8ciSjViYESZwERL1G1MMU3Fs+ZuWFeVosIrco8EFfiHYKShuinMR1XTh4EosQo5qVgWzSjmjPSm0snu+CzFYgasxiLVEOb6/IDnBLA2cjRQGM1FKXEdLtZhvlkxm1R2wQOdpa3cwZS6FC705DbvTHWQO+LbxidBbrdTvBdzAJbmGJuv444L4X2Nctx47Rg/Px6ZVyxjDc24H0OheUPuc4V28Mj0NyFDQcfdoiY7psc2psfaXvPrs0uY623uqdoM8RsjPzADs0ZfiwAAAABJRU5ErkJggg==">Waze</a>`,
+                uber: `<a href="https://m.uber.com/ul/?action=setPickup&dropoff[latitude]={lat}&dropoff[longitude]={long}{nickname_param}"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACs0lEQVRYhc2Xv0sjURDHP5sfoo3BQjgkSlLYSLBTsBILKzvThFX80YSAYuMfcKDWNjbaGLDQcIXYi4X2NhGuSKFCgqIgeoKrZo3fK5LsRTfxzsNzb2CKt/PefL8z8+axA24ZBTLAd+AGKALPgN6pz5WzNxVfmYrvhvIFOPsLoPfqWQXLBf6vgV/rCxKfEXm9TADlunw2eFVH/cBXIPa6Jp8lPqDXK3Cg16DcJiGPCPwwKPdq0CMCtkH5wTA8IiCD8m30THy1i+7ubkzTdG0yTZNIJMLIyAh9fX0fTsLpy/n5eUly9askJZNJnZ6eKp1Of+hb8CIDtm03ZGnbNo+Pj9zf3wMQjUYb7g2Hw38cve/3W35JqVQiFothWRbHx8dIYn193bEvLi4iiXw+jyRmZmYAuLi44PDwEElMTEy4/DrpmJuba1iC6elpZbNZSVIikRCg4eFhSdLCwoLi8bgkaXBwUICSyaTj6/z8XIVCQdFo1OU7UMvEMN7uxqamJra2tshkMgDs7u6ysrLC+Pg4/f39FAoFpqamSKVS3N3dYds2y8vLGIZBOp3m5OTE5fNFCW5vbxuCl4PBuQNVsSyLYDBIIBDg4eEBy7KwLAuAtbU19vb28Pv9bwbmSvf29raz3tnZkSRNTk7q6OhIpVJJ4XDYsReLRa2urmp2dlaS1N7e7tg2NjYE6OrqSktLS3W7IPCajWmabG5uOhHncjmgnP6WlhZyuRz5fJ7r62va2to4ODgglUoBMDAwwOXlpWPb398HoLm5mUDABVU/A1WNx+MaGhoSoK6uLgWDQXV0dDj2sbEx9fT0uM6FQiElEglFIhHnW2dnp1pbW+vi/BdPsZcE5AOePCTw5AMsDwlYPmr+Tj2QMx+Q9ZBA1gd885CAg+3pYAL/wWhWJeHZcFornzqe/wReLF3cSdf4HAAAAABJRU5ErkJggg==">Uber</a>`,
+                apps: `<a href="geo:{lat},{long}?q={lat},{long}{geo_nickname}"><img src="data:image/png;base64,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" alt=""></img>Outros Apps Android</a>`,
+                apple: `<a href="https://maps.apple.com/?saddr=Current%20Location&daddr={apple_nickname}X@{lat},{long}&dirflg=d"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC5UlEQVR4Aa1XQ3hkQRjc+ynX2OZtbfu+tm3b1nlt27a9O4qNS5xxbdd+cTKvXydT31fJoPuvmvf6/ejw86dBlX6CwwQXCq6t5cLaz/xV4+ld6F8r9NdgsCAjIwf5+UUoLCwBydf8jN+JNQbBddzjDQM+gocErRSyWm2QgWu4lntq9/q01UAfwYKCgmK43W6ognu4lzEE+6oamCboLC0tR3vBGIwlOF2vgZm5uQWoqamBXrhcLpw5cxZ79uxFKxCxrGBMxpYZ6Eu33KAXNDp+/AQEBgbzv8Y6Kxi7+e1ofuAKVS/7zp27KE7i6dNnem5HAbVaM3CYh0YF/PWRkdEUpxHoQe3BPNTcQJCgTc9pT0tLh8VigdPpBLFv3368evVKBC7A16/fkJmZKX06qCXo39jAej67Wnjx4iVGjBiJ0NBwBAeHYsCAgTh48BCuXLmCKVOmIioqBrwS4eGRGDduPMxmMzyBWtRsbMCglWSePXuOkJAwCuhmnz79YLVaPSUrGjDWGQhgCvWEyspKdOrURUk8JiYO799/0Exg1KQ2DQxjHveEO3fuKomTPBcyUJPaNLCQxcQTNm3arGzAYDBABmoK7UU0sE7rAC5dukxJPCgoRPy6DMhATWpLDWzbtl35Cty//0DBgOQW3LhxU9nAsGEj4HA4dN0CySHkwvy6bKfECRMmISsrS34IZY8hMXnyFAZV5rFjx6WPoa5E9PnzZ2XxpKQUlJaWaiUik1IqXrBgkZKB06fPwBOKiv4fwA3Ni5FdK3NVVFSgd+++usRnzJilXIzII7JynJOTAxaa7t17Yt68+bh37z6+fPmKCxcuYvToMejVqzdWrVrNMi0rx4cVGxIFKDQkCi2ZAhRaMklTavWqeF6epCltxuneasvLyurb8lmqg0lfLw4m/dozmh0RtBUV6R/NuJZ7avf6eGs4ZeIwMoVmZrYcTvkZv+MarlUZTlUZIDi8diRfX8uFtZ8FqMb7Bx+2VJbBTrlcAAAAAElFTkSuQmCC"></img>Apple Maps</a>`,
+                indrive: `<a href="geo:{lat},{long}?q={lat},{long}{indrive_nickname}"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADd0lEQVR4AcWXg5KkSxCF5z7CfYTLYNvGNda2bdu2bdu2bdtWb3DZMWfzNGr5/9Pjjvhmukt5qjKzkPWtz8Knxu8WPTH9KLQWNgjXhJjwWogL2QK+gGXxVJuXwnVhY3IMGUvGzMrkI42/F9oIF4T3AvLJ+9RYbTh2TsZ/FdakZoICJp4a+1c94/sEFDL7aOtby75aQBGxmjY/FdBGLXvREKfNtPEfhfNajRc/M2HJc5L8rsqfStkzhWrD8gxF0OaPFNBaK9oXPjKhz2oHWo5zE/Re6cCCh0kjU85b0GqCG81HedB8jAftprrRd60Dk89asPAxxWaUHa0oYP03G4iRObfN+L9WECZ7FCZHFP9UD2L2TTOWvDCh3zoHbN4ozE7BFYVFsPujiJQKo35/LyactGYiYj0FXNMT8F/NII0Q/F0tiFk3kgI4W5tPDLujsBJPEv6moD8qhDBoiz0nl1yjgJhWg7l3zSjXNABHMAJSumEAFEVfD95qh//vMDy/ReAWHAGugpASQxGR0mGM3GfTW4kYBbzWWyYu5bBddpAJJ6ygf1k+T8SNOWzDqAM2jNxvQ//1DjQY4KUoJYKrVr5ZUvSib6/E66yc0o+zXRYzEi79lxlCVBawbMBGO0IllAiuHN2l6r8gTgHZmgJktuOPWzF4mx1k3DG1AppQTIcZLgaoWoU6vbxa7bOz9Aabe8eMMo0DYHSTUg10l1OtypRzFvpfBeT/dYKa/ZQAzSyoFVSp9k8qC3QEqOAtWT8A9mNg/l4+hOlXLFicRwEqz7kPzLqZgYA7IqBeQPX7vUIRCqALJp62qkBk3xJ1xQV3tF2QXVACWM5ZthrvZgCqIKzbRz8I43kToNJPwXOi+xInfH9FVBo6QxH036Cfhq9zK4CzpJ9H7LNxg+KWiy7znajawQd3RBnn7FGxlZ9tdTeiWG4FcDY06v0jAleY23REbb/WT4z/Vi6E0Ydy3oqvZSyAaZg+DWV3s/uUQQXbkb+rBjFsp13POLlOARvydByv52moDFIIV4I5jybDPLwXKOM6bMjzhWTaRQvaT3eh9SQ32kx2o/NcFwZttmOqlKduTJlcSFpTwE95vpI9V+T1SvZT+l7YtjgupV9ey9cUoYA1tFm8D5Pif5rpP05bF8vjVIl4ZP7yeX49l8/zWKrPhvTzfOFj8zef5x8ACpF8DThKn2EAAAAASUVORK5CYII="></img>InDrive (Android)</a>`
+            },
+            html: {
+                tituloPadrao: `<h1>Links para a localização em diferentes apps</h1>`,
+                base: `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Selecionar Aplicativo</title>
+<style>body{font-family:sans-serif;text-align:center;background-color:#f9f9f9;padding:20px}ul{display:flex;flex-direction:row;list-style-type:none;padding:0;flex-wrap:wrap;justify-content:center}li{margin:10px;background:white;padding:15px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);width:120px}a{align-items:center;display:flex;flex-direction:column;text-decoration:none;color:#333;font-weight:bold;font-size:14px}img{width:45px;margin-bottom:8px}.links{display:flex;flex-direction:row;list-style-type:none;padding:0;flex-wrap:wrap;justify-content:center;min-width:30vw}.links>a{align-items:center;display:flex;text-decoration:none;font-weight:bold;font-size:1.1rem;margin:15px}.acoes{margin-top:30px;display:flex;flex-direction:column;gap:10px;align-items:center}#area-link{display:none;margin-top:20px;padding:15px;background:#e9ecef;border-radius:8px;width:100%;max-width:300px;border:1px solid #ccc}#input-link{width:90%;padding:10px;margin-top:10px;border:1px solid #aaa;border-radius:4px;font-size:14px}.btn-share{padding:12px 20px;border:none;background:#007bff;color:white;border-radius:5px;cursor:pointer;font-weight:bold;width:220px}.btn-voltar{padding:8px 15px;border:none;background:#666;color:white;border-radius:5px;cursor:pointer;font-size:12px}</style>
+</head><body><h1>Para onde vamos?</h1>
+{titulo}<ul>{lista}</ul><div class="acoes">
+<button class="btn-share" id="btn-share" onclick="compartilharLink()">🔗 Gerar link para compartilhar</button>
+<div id="area-link"><label style="font-size:12px;font-weight:bold;color:#555;">LINK PRONTO:</label><br><input type="text" id="input-link" readonly onclick="this.select()"><p style="font-size:10px;color:#777;margin-top:5px;">Toque no link acima para selecionar e copiar.</p></div>
+<button class="btn-voltar" onclick="window.history.back()">Voltar e alterar</button></div>
+<script>
+function compartilharLink(){
+  const lat="{lat}", lon="{long}";
+  let nome=prompt("Dê um nome para este local (ou deixe em branco):");
+  let contato=prompt("Adicione um contato whatsapp (ou deixe em branco):");
+  let link=prompt("Adicione um link do site (ou deixe em branco):");
+  let url="https://j5r.github.io/localizacao/"+"?lat="+lat+"&long="+lon;
+  if(contato&&contato.trim()!=="") url+="&contato="+encodeURIComponent(contato.trim());
+  if(link&&link.trim()!=="") url+="&link="+encodeURIComponent(link.trim());
+  if(nome&&nome.trim()!=="") url+="&nome="+encodeURIComponent(nome.trim());
+  const area=document.getElementById('area-link'), inp=document.getElementById('input-link');
+  area.style.display='block'; inp.value=url;
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  inp.select();
 }
-
-// Esta função roda automaticamente assim que a página carrega
-window.onload = function() {
-    // 1. Pega os parâmetros da URL (ex: ?lat=-20.45&long=-54.65&nome=Casa)
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    const lat = urlParams.get('lat');
-    const long = urlParams.get('long');
-    const nome = urlParams.get('nome');
-
-    // 2. Se a latitude e longitude existirem na URL...
-    if (lat && long) {
-        // Preenche os campos da Página A para que o usuário veja o que está acontecendo
-        document.getElementById('lat').value = lat;
-        document.getElementById('lon').value = long;
-        
-        // Se você quiser que o nome apareça na Página B, 
-        // podemos passar essa variável para a função de geração
-        console.log("Dados carregados via URL para:", nome || "Local não identificado");
-
-        // 3. Aguarda um pequeno instante (para garantir que o navegador está pronto) 
-        // e gera a Página B automaticamente
-        setTimeout(() => {
-            gerarPaginaB(nome); // Passamos o nome como opcional
-        }, 500);
-    }
-}
-</script>
-
+<\/script></body></html>`
+            }
+        };
+    </script>
 </body>
-
 </html>
-
-
-
-
-
