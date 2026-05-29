@@ -131,14 +131,14 @@
 
     /* Separa os links de contato (wpp/site) dos links de navegação */
     #app-whatsapp-site {
-      font-size: 1.4rem;
-      color: #007bff;
       margin-bottom: 30px;
+      display: inline-flexbox;
     }
 
     #app-nome {
-      font-size: 1.4rem;
-      color: #004904;
+      font-size: 2.4rem;
+      color: #007bff;
+      font-weight: bold;
       margin-bottom: 30px;
     }
 
@@ -222,8 +222,8 @@
   <h1>Para onde vamos?</h1>
   <h2>Selecione um aplicativo de Mapa</h2>
 
-  <p id="app-nome" style="display: none;">{titulo}</p>
-  <ul id="app-whatsapp-site" class="links" style="display: none;">{wpp-site}</ul>
+  <p id="app-nome">{titulo}</p>
+  <ul id="app-whatsapp-site" class="links">{wpp-site}</ul>
 
   <ul id="app-list" class="links">{lista}</ul>
 
@@ -353,17 +353,24 @@
       if (nome) {
         const app_nome = document.getElementById('app-nome')
         app_nome.innerHTML = nome;
-        app_nome.style.display = "block";
+      }else{
+        document.getElementById('app-nome').style.display = "none";
       }
+
+      let display_contato = false;
       if (contato) {
         const contato_html = document.getElementById('app-whatsapp-site');
         contato_html.innerHTML = CONFIG.templates.contato.replace('{numero}', contato);
-        contato_html.style.display = "block";
+        display_contato = true;
       }
       if (link_site) {
         const link_html = document.getElementById('app-whatsapp-site');
         link_html.innerHTML += CONFIG.templates.link.replace('{link}', link_site);
-        link_html.style.display = "block";
+        display_contato = true;
+      }
+      
+      if(!display_contato){
+        document.getElementById('app-whatsapp-site').style.display = "none";
       }
 
     });
