@@ -309,10 +309,11 @@
       const parms = new URLSearchParams(window.location.search);
 
       if(parms.get("possoVoltar")==false){
-        console.log(parms.get("possoVoltar"));
+        
         const botao = document.getElementsByClassName('btn-voltar')[0]
         botao.innerHTML = '<a href="https://j5r.github.io/localizacao">Gerar nova localização</a>';
       }
+      console.log(parms.get("possoVoltar"));
 
       // Extrai o valor específico
       const lat = parms.get("lat");
