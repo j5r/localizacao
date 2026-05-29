@@ -131,6 +131,7 @@
                     params.set('long', params.get('lon'));
                     params.delete('lon');
                 }
+                params.set('possoVoltar', 'false'); // Adiciona um parâmetro para indicar que já processamos a URL
                 // Avança direto para a página de destino passando a query string completa
                 window.location.href = `localizacao.html?${params.toString()}`;
             }
@@ -173,6 +174,7 @@
             }
 
             const params = new URLSearchParams({ lat, long });
+            params.set('possoVoltar', 'true');
             window.location.href = `localizacao.html?${params.toString()}`;
         }
     </script>

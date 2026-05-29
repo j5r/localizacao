@@ -7,14 +7,73 @@
   <title>Selecionar Aplicativo de Mapa</title>
   <style>
     /* Estilos base e tipografia */
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; margin: 0; color: #333; }
-    h1 { font-size: 1.8rem; margin-bottom: 5px; color: #1a1a1a; }
-    h2 { font-size: 1.1rem; font-weight: normal; color: #666; margin-bottom: 30px; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #f0f2f5;
+      padding: 20px;
+      margin: 0;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+      color: #1a1a1a;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: normal;
+      color: #666;
+      margin-bottom: 30px;
+    }
 
     /* Animações originais mantidas */
-    body.pisca { animation: piscaTela 2.0s ease-in-out forwards; }
-    @keyframes piscaTela { 0% { background-color: #f0f2f5; } 50% { background-color: #828282; } 100% { background-color: #f0f2f5; } }
-    @keyframes fadeIn { 0% { opacity: .2; background-color: #e9ecef; } 10% { opacity: .3; background-color: red; } 20% { opacity: .4; background-color: #e9ecef; } 30% { opacity: .5; background-color: red; } 100% { opacity: 1; background-color: #e9ecef; } }
+    body.pisca {
+      animation: piscaTela 2.0s ease-in-out forwards;
+    }
+
+    @keyframes piscaTela {
+      0% {
+        background-color: #f0f2f5;
+      }
+
+      50% {
+        background-color: #828282;
+      }
+
+      100% {
+        background-color: #f0f2f5;
+      }
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: .2;
+        background-color: #e9ecef;
+      }
+
+      10% {
+        opacity: .3;
+        background-color: red;
+      }
+
+      20% {
+        opacity: .4;
+        background-color: #e9ecef;
+      }
+
+      30% {
+        opacity: .5;
+        background-color: red;
+      }
+
+      100% {
+        opacity: 1;
+        background-color: #e9ecef;
+      }
+    }
 
     /* Container Flexbox para organizar as caixas uniformemente */
     .links {
@@ -22,15 +81,17 @@
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px; /* [Define um espaçamento fixo e idêntico entre todas as caixas] */
+      gap: 20px;
+      /* [Define um espaçamento fixo e idêntico entre todas as caixas] */
       padding: 0;
       list-style-type: none;
-      max-width: 600px; /* [Limita a largura total para que não se espalhem muito em telas grandes] */
+      max-width: 600px;
+      /* [Limita a largura total para que não se espalhem muito em telas grandes] */
       margin: 0 auto;
     }
 
     /* Estilo "Card" para cada aplicativo */
-    .links > a {
+    .links>a {
       background-color: white;
       width: 120px;
       height: 110px;
@@ -42,42 +103,118 @@
       color: #444;
       font-weight: 600;
       font-size: 13px;
-      border-radius: 16px; /* [Bordas suavemente arredondadas] */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* [Sombra projetada para dar efeito de profundidade] */
-      transition: transform 0.2s ease, box-shadow 0.2s ease; /* [Suaviza a transição de movimento ao focar com o mouse] */
+      border-radius: 16px;
+      /* [Bordas suavemente arredondadas] */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      /* [Sombra projetada para dar efeito de profundidade] */
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      /* [Suaviza a transição de movimento ao focar com o mouse] */
       padding: 10px;
       box-sizing: border-box;
     }
 
     /* Efeito de interatividade ao passar o mouse */
-    .links > a:hover {
-      transform: translateY(-5px); /* [Move a caixa ligeiramente para cima] */
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    .links>a:hover {
+      transform: translateY(-8px);
+      /* [Move a caixa ligeiramente para cima] */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
 
     /* Padronização do tamanho de todas as imagens/ícones */
-    .links > a img {
+    .links>a img {
       width: 48px;
       height: 48px;
-      object-fit: contain; /* [Garante que as imagens caibam no espaço sem distorcer as proporções] */
+      object-fit: contain;
+      /* [Garante que as imagens caibam no espaço sem distorcer as proporções] */
       margin-bottom: 12px;
     }
 
     /* Separa os links de contato (wpp/site) dos links de navegação */
-    #app-whatsapp-site { margin-bottom: 30px; }
+    #app-whatsapp-site {
+      font-size: 1.4rem;
+      color: #007bff;
+      margin-bottom: 30px;
+    }
+
+    #app-nome {
+      font-size: 1.4rem;
+      color: #004904;
+      margin-bottom: 30px;
+    }
+
+  
 
     /* Estilo da seção inferior (Botões e Área de Compartilhamento) */
-    .acoes { margin-top: 40px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
-    
-    .btn-share { padding: 14px 24px; border: none; background: #007bff; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; max-width: 280px; box-shadow: 0 4px 10px rgba(0,123,255,0.2); transition: background 0.2s; }
-    .btn-share:hover { background: #0056b3; }
-    
-    .btn-voltar { padding: 10px 20px; border: none; background: #6c757d; color: white; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-    .btn-voltar:hover { background: #5a6268; }
+    .acoes {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
 
-    #area-link { display: none; margin-top: 20px; padding: 20px; background: white; border-radius: 12px; width: 100%; max-width: 320px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e1e4e8; }
-    #area-link.ativo { display: block; animation: fadeIn 2.0s ease-in-out forwards; }
-    #input-link { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: #f8f9fa; color: #333; }
+    .btn-share {
+      padding: 14px 24px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      width: 100%;
+      max-width: 280px;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background 0.2s;
+    }
+
+    .btn-share:hover {
+      background: #0056b3;
+    }
+
+    .btn-voltar {
+      padding: 10px 20px;
+      border: none;
+      background: #6c757d;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: #5a6268;
+    }
+
+    #area-link {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e1e4e8;
+    }
+
+    #area-link.ativo {
+      display: block;
+      animation: fadeIn 2.0s ease-in-out forwards;
+    }
+
+    #input-link {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      background: #f8f9fa;
+      color: #333;
+    }
   </style>
 </head>
 
@@ -169,19 +306,23 @@
       //https://j5r.github.io/localizacao/?lat=-20.456662&long=-54.575978&contato=bbbbbb&link=cccccc&nome=aaaaaa
 
       // [window.location.search: pega a parte da URL a partir do "?", ex: "?produto=livro"]
-      const parms = new URLSearchParams(window.location.search);      
+      const parms = new URLSearchParams(window.location.search);
+
+      if(parms.get("possoVoltar")=='false'){
+        document.getElementsByClassName('btn-voltar')[0].innerHTML = 'Gerar nova localização';
+      }
 
       // Extrai o valor específico
       const lat = parms.get("lat");
       const long = parms.get("long");
       const nome = parms.get("nome");
-      
+
       //const contato = parms.get("contato");
       let contato = decodeURIComponent(parms.get('contato') || "").replace(/\D+/g, '');
-                if (contato) {
-                    if (!contato.startsWith('55')) contato = '55' + contato;
-                    if (contato.length !== 13) contato = "?text=Numero%20invalido!%20Tente%20um%20número%20no%20formato%2055%2011%209%201111%20000.%20Seu%20número%20não%20é%20do%20Brasil?%20Entre%20em%20contato%20comigo%20pelo%20https%3A%2F%2Fwa.me%2F5516994619378";
-                }
+      if (contato) {
+        if (!contato.startsWith('55')) contato = '55' + contato;
+        if (contato.length !== 13) contato = "?text=Numero%20invalido!%20Tente%20um%20número%20no%20formato%2055%2011%209%201111%20000.%20Seu%20número%20não%20é%20do%20Brasil?%20Entre%20em%20contato%20comigo%20pelo%20https%3A%2F%2Fwa.me%2F5516994619378";
+      }
 
 
       const link_site = parms.get("link");
@@ -210,15 +351,19 @@
       apps.innerHTML += CONFIG.apps.indrive.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname).replace('{lat}', lat).replace('{long}', long);
 
       if (nome) {
-        document.getElementById('app-nome').innerHTML = nome;
+        const app_nome = document.getElementById('app-nome')
+        app_nome.innerHTML = nome;
+        app_nome.style.display = "block";
       }
       if (contato) {
         const contato_html = document.getElementById('app-whatsapp-site');
         contato_html.innerHTML = CONFIG.templates.contato.replace('{numero}', contato);
+        contato_html.style.display = "block";
       }
       if (link_site) {
         const link_html = document.getElementById('app-whatsapp-site');
         link_html.innerHTML += CONFIG.templates.link.replace('{link}', link_site);
+        link_html.style.display = "block";
       }
 
     });
