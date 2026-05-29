@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="prefetch" href="localizacao.html">
     <title>Gerador de Localização</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; }
@@ -34,7 +35,7 @@
         </div>
         <div class="campo">
             <label>Longitude</label>
-            <input type="text" id="lon" placeholder="Ex: -54.575978" oninput="this.value = this.value.replace(',', '.')">
+            <input type="text" id="long" placeholder="Ex: -54.575978" oninput="this.value = this.value.replace(',', '.')">
         </div>
         
         <button class="btn-gerar" onclick="gerarPaginaB()">Gerar Links de App</button>
@@ -69,9 +70,9 @@
             }
         }
 
-        function definirCoords(lat, lon) {
+        function definirCoords(lat, long) {
             document.getElementById('lat').value = lat;
-            document.getElementById('lon').value = lon;
+            document.getElementById('long').value = long;
         }
 
         function gerarPaginaB(nome = "", contato = "", link = "") {
@@ -110,7 +111,14 @@
             });
 
             const blob = new Blob([htmlFinal], { type: 'text/html' });
-            window.location.href = URL.createObjectURL(blob);
+            
+            //window.location.href = URL.createObjectURL(blob);//*******
+            const parms = new URLSearchParams({
+                lat, long, nome, contato, link
+            });
+            const dados_para_url = parms.toString();
+            window.history.pushState({}, "", "localizacao.html?" + dados_para_url);
+
         }
 
         // --- INICIALIZAÇÃO VIA URL PARAMETERS ---
