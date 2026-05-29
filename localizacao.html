@@ -308,8 +308,10 @@
       // [window.location.search: pega a parte da URL a partir do "?", ex: "?produto=livro"]
       const parms = new URLSearchParams(window.location.search);
 
-      if(parms.get("possoVoltar")=='false'){
-        document.getElementsByClassName('btn-voltar')[0].innerHTML = 'Gerar nova localização';
+      if(parms.get("possoVoltar")==false){
+        console.log(parms.get("possoVoltar"));
+        const botao = document.getElementsByClassName('btn-voltar')[0]
+        botao.innerHTML = '<a href="https://j5r.github.io/localizacao">Gerar nova localização</a>';
       }
 
       // Extrai o valor específico
