@@ -205,9 +205,9 @@
       apps.innerHTML = CONFIG.apps.maps.replace('{lat}', lat).replace('{long}', long);
       apps.innerHTML += CONFIG.apps.waze.replace('{lat}', lat).replace('{long}', long);
       apps.innerHTML += CONFIG.apps.uber.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname);
-      apps.innerHTML += CONFIG.apps.apps.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname);
+      apps.innerHTML += CONFIG.apps.apps.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname).replace('{lat}', lat).replace('{long}', long);
       apps.innerHTML += CONFIG.apps.apple.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname);
-      apps.innerHTML += CONFIG.apps.indrive.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname);
+      apps.innerHTML += CONFIG.apps.indrive.replace('{lat}', lat).replace('{long}', long).replace('{nickname}', nickname).replace('{lat}', lat).replace('{long}', long);
 
       if (nome) {
         document.getElementById('app-nome').innerHTML = nome;
