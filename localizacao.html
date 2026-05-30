@@ -318,7 +318,6 @@
         const botao = document.getElementsByClassName('btn-voltar')[0]
         botao.innerHTML = '<a href="https://j5r.github.io/localizacao">Gerar nova localização</a>';
       }
-      console.log(parms.get("possoVoltar"));
 
       // Extrai o valor específico
       const lat = parms.get("lat");
@@ -333,9 +332,8 @@
       }
 
 
-      const link_site = parms.get("link");
-
-      const nickname = nome;
+      const link_site = parms.get("link");      
+      const nickname = encodeURI(nome);
       // null se nao existe if(!nome) [[nome nao existe]]
 
       // Constrói o HTML se o dado existir na URL
@@ -349,6 +347,8 @@
         `
         return;
       }
+
+      
 
       const apps = document.getElementById('app-list');
       apps.innerHTML = CONFIG.apps.maps.replace('{lat}', lat).replace('{long}', long);
