@@ -105,6 +105,7 @@
             width: 100%;
             /* Garante que o contêiner ocupe toda a largura disponível */
             margin-top: 20px;
+            
         }
 
         .btn-tutorial {
@@ -114,6 +115,7 @@
 
         .btn-tutorial:hover {
             opacity: 0.7;
+            cursor:help;  
         }
 
         #tutorial>a {
@@ -122,6 +124,30 @@
             padding: 15px 20px;
             font-size: .9rem;
             box-shadow: 0 2px 8px rgba(0, 123, 255, 0.7);
+        }
+
+        #pix {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        #pix>img {
+            display: none;
+        }
+
+        #pix>p {
+            background-color: #8f45c5aa;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+
+        #pix:hover {
+            opacity: 0.6;
+            transition: opacity 0.5s;
+            cursor:crosshair;          
         }
     </style>
 </head>
@@ -152,7 +178,12 @@
         <div id="tutorial">
             <a href="tutorial.html" class="btn-tutorial">Aprenda a usar</a>
         </div>
+
+        <div id="pix">
+      <p onclick="copiarPix()">Ajudei você?<br>Se puder, doe qualquer quantia clicando aqui ❤️</p>
     </div>
+    </div>
+
 
 
     <script>
@@ -216,6 +247,30 @@
             params.set('possoVoltar', 'yes');
             window.location.href = `localizacao.html?${params.toString()}`;
         }
+
+        function copiarPix() {
+      document.getElementById('pix').style.display = "none";
+      if (!document.getElementById('input-pix')) {
+        const container = document.getElementsByClassName('container')[0];
+        const above_div = document.createElement('p');
+        container.appendChild(above_div);
+        above_div.innerText = "Copie o Código PIX abaixo";
+        const input = document.createElement('input');
+        container.appendChild(input);
+        input.id = "input-pix";
+        input.type = "text";
+        input.readOnly = true;
+
+        input.setAttribute('value',
+          '00020126580014BR.GOV.BCB.PIX013615372e19-62b5-421d-88cb-f06edbfddbc95204000053039865802BR5924Junior Rodrigues Ribeiro6009SAO PAULO62140510wtfWI7pyR36304B7F1'
+        );
+        input.setAttribute('readonly', true);
+        input.setAttribute('onclick',"this.select()");
+        input.style.width = "100%";
+      }
+
+      input.select();
+    }
     </script>
 </body>
 

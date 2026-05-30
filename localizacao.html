@@ -209,7 +209,7 @@
       animation: fadeIn 2.0s ease-in-out forwards;
     }
 
-    #input-link {
+    #input-link, #input-pix {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
@@ -219,6 +219,30 @@
       box-sizing: border-box;
       background: #f8f9fa;
       color: #333;
+    }
+
+    #pix {
+      display: flex;
+      justify-content: center;
+      width: 50%;
+      margin-top: 25px;
+    }
+
+    #pix>img {
+      display: none;
+    }
+
+    #pix>p {
+      background-color: #8f45c5aa;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    #pix:hover {
+      opacity: 0.6;
+      transition: opacity 0.5s;
+      cursor: crosshair;
     }
   </style>
 </head>
@@ -252,6 +276,10 @@
     <button class="btn-voltar" onclick="window.history.back()">
       Voltar e alterar
     </button>
+
+    <div id="pix">
+      <p onclick="copiarPix()">Ajudei você?<br>Se puder, doe qualquer quantia clicando aqui ❤️</p>
+    </div>
   </div>
 
 
@@ -393,6 +421,32 @@
       }
 
     });
+
+    function copiarPix() {
+      document.getElementById('pix').style.display = "none";
+      if (!document.getElementById('input-pix')) {
+        const above_div = document.createElement('p');
+        document.body.appendChild(above_div);
+        above_div.innerText = "Copie o Código PIX abaixo";
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+        input.id = "input-pix";
+        input.type = "text";
+        input.readOnly = true;
+
+        input.setAttribute('value',
+          '00020126580014BR.GOV.BCB.PIX013615372e19-62b5-421d-88cb-f06edbfddbc95204000053039865802BR5924Junior Rodrigues Ribeiro6009SAO PAULO62140510wtfWI7pyR36304B7F1'
+        );
+        input.setAttribute('readonly', true);
+        input.setAttribute('onclick',"this.select()");
+        input.style.width = "500px";
+      }
+
+      input.select();
+    }
+
+   
+
   </script>
 </body>
 
