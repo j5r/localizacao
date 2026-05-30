@@ -29,6 +29,11 @@
       margin-bottom: 30px;
     }
 
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
     /* Animações originais mantidas */
     body.pisca {
       animation: piscaTela 2.0s ease-in-out forwards;
@@ -308,7 +313,7 @@
       // [window.location.search: pega a parte da URL a partir do "?", ex: "?produto=livro"]
       const parms = new URLSearchParams(window.location.search);
 
-      if(parms.get("possoVoltar")==false){
+      if(parms.get("possoVoltar")=='no'){
         
         const botao = document.getElementsByClassName('btn-voltar')[0]
         botao.innerHTML = '<a href="https://j5r.github.io/localizacao">Gerar nova localização</a>';
