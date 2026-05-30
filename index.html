@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="prefetch" href="localizacao.html">
+
+
     <title>Gerador de Localização</title>
     <style>
         body {
@@ -15,6 +17,11 @@
             min-height: 100vh;
             margin: 0;
             background-color: #f0f2f5;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
         .container {
@@ -90,6 +97,32 @@
         .destaque {
             color: #a82424;
         }
+
+        #tutorial {
+            display: flex;
+            justify-content: flex-end;
+            /* Alinha o botão totalmente à direita */
+            width: 100%;
+            /* Garante que o contêiner ocupe toda a largura disponível */
+            margin-top: 20px;
+        }
+
+        .btn-tutorial {
+            display: inline-block;
+            border-radius: 6px;
+        }
+
+        .btn-tutorial:hover {
+            opacity: 0.7;
+        }
+
+        #tutorial>a {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            font-size: .9rem;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.7);
+        }
     </style>
 </head>
 
@@ -114,7 +147,13 @@
         </div>
 
         <button class="btn-gerar" onclick="irParaLocalizacao()">Gerar Links de App</button>
+
+        <br>
+        <div id="tutorial">
+            <a href="tutorial.html" class="btn-tutorial">Aprenda a usar</a>
+        </div>
     </div>
+
 
     <script>
         const regexGoogle = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g;

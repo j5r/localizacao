@@ -1,161 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="preload" as="image" href="pc-print1.jpg" media="(min-width: 880px)">
+    <link rel="preload" as="image" href="pc-print2.jpg" media="(min-width: 880px)">
+    <link rel="preload" as="image" href="pc-print3.jpg" media="(min-width: 880px)">
+    <link rel="preload" as="image" href="pc-print4.jpg" media="(min-width: 880px)">
+
+    <link rel="preload" as="image" href="animacao1.gif" media="(max-width: 879px)">
+    <link rel="preload" as="image" href="animacao2.gif" media="(max-width: 879px)">
+    <link rel="preload" as="image" href="animacao3.gif" media="(max-width: 879px)">
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutorial Interativo - Sem Piscada</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap" rel="stylesheet">
-    
+    <title>Tutorial de Uso</title>
     <style>
-        body { font-family: "Arimo", sans-serif; background: #cdd3dc; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; box-sizing: border-box; }
+        h1 { font-size: 1.8rem; margin-bottom: 5px; color: #1a1a1a; text-align: center; }
+        p { color: #666; margin-bottom: 30px; text-align: center; }
+
+        /* Contêiner Externo (Garante espaço para os botões do lado de fora) */
+        .carousel-wrapper { position: relative; display: none; box-sizing: border-box; }
         
-        /* SOLUÇÃO 1: O cartão agora tem o fundo escuro por padrão */
-        .tutorial-card { 
-            background: #333; /* Cor escura para evitar o flash branco */
-            width: 95%; 
-            max-width: 1200px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-            overflow: hidden; 
-            position: relative; 
+        /* Área interna da imagem com sombra e bordas arredondadas */
+        .carousel-container { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; width: 100%; height: 100%; }
+        .slide { display: none; width: 100%; height: 100%; }
+        .slide.active { display: block; }
+        .slide img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+        /* Botões de Navegação Externos */
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: #17a2b888; color: #333; border: none; width: 40px; height: 40px; cursor: pointer; font-size: 18px; border-radius: 50%; user-select: none; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+        .nav-btn:hover { background: #333; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+        
+        /* Posicionamento das setas usando margens negativas para sair da caixa da imagem */
+        .prev { left: -55px; }
+        .next { right: -55px; }
+
+        /* Indicadores (Bolinhas) do lado de fora e abaixo da imagem */
+        .dots-container { display: flex; justify-content: center; gap: 8px; margin-top: 20px; width: 100%; }
+        .dot { width: 10px; height: 10px; background: #bdc3c7; border-radius: 50%; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+        .dot.active { background: #17a2b888; transform: scale(1.2); }
+
+        /* Botão Voltar */
+        .btn-voltar { margin-top: 40px; padding: 12px 24px; border: none; background: #6c757d; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: background 0.2s; text-decoration: none; }
+        .btn-voltar:hover { background: #5a6268; }
+
+        /* CONFIGURAÇÃO PARA TELAS GRANDES (PC / WIDE) */
+        @media (min-width: 880px) { /* [Ajustado para considerar o espaço das setas externas] */
+            #wrapper-pc { display: block; width: 100%; max-width: 760px; aspect-ratio: 1300 / 640; }
         }
 
-        /* Estilo Desktop */
-        @media (min-width: 768px) {
-            .slide-content { display: flex; align-items: stretch; min-height: 500px; }
-            .slide-image-container { 
-                flex: 6.5; 
-                padding: 20px; 
-                text-align: center; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                background: #526c79; /* Sua cor personalizada */
-            }
-            .slide-text-container { 
-                flex: 2; 
-                padding: 30px; 
-                background: #333; 
-                color: white; 
-                font-size: 25px; 
-                display: flex; 
-                flex-direction: column; 
-                justify-content: center; 
-                text-align: left; 
-            }
-            .slide-image-container img { max-height: 500px; width: auto; max-width: 100%; object-fit: contain; border-top-left-radius: 25px; border-bottom-right-radius: 25px; }
+        /* CONFIGURAÇÃO PARA TELAS PEQUENAS (CELULAR) */
+        @media (max-width: 879px) {
+            #wrapper-mobile { display: block; width: 100%; max-width: 290px; aspect-ratio: 350 / 778; }
+            /* Ajuste sutil na posição das setas em telas menores para não sumirem da tela */
+            .prev { left: -45px; }
+            .next { right: -45px; }
         }
-
-        /* Estilo Mobile */
-        @media (max-width: 767px) {
-            .slide-content { display: block; text-align: center; }
-            .slide-image-container { background: #526c79; padding: 10px; }
-            .slide-image-container img { width: 100%; height: auto; border-radius: 10px; }
-            .slide-text-container { padding: 20px; background: #333; color: white; font-size: 18px; }
-        }
-
-        /* CONTROLE DE OPACIDADE */
-        .fade-target {
-            opacity: 1;
-            transition: opacity 0.25s ease-in-out;
-            background: inherit; /* Garante que o container siga o fundo do pai */
-        }
-        .fade-out { opacity: 0; }
-
-        .dots-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
-        .dot { cursor: pointer; height: 10px; width: 10px; background: rgba(255,255,255,0.4); border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: #007bff; width: 25px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="tutorial-card">
-    <div class="slide-content fade-target" id="content-area">
-        <div class="slide-image-container">
-            <img id="main-img" src="">
+    <h1>Como usar o sistema</h1>
+    <p>Siga o passo a passo demonstrado abaixo para gerar seus links</p>
+
+    <div id="wrapper-pc" class="carousel-wrapper">
+        <button class="nav-btn prev" onclick="mudarSlide('wrapper-pc', -1)">&#10094;</button>
+        
+        <div class="carousel-container">
+            <div class="slide active"><img src="pc-print1.jpg" alt="Passo 1 PC"></div>
+            <div class="slide"><img src="pc-print2.jpg" alt="Passo 2 PC"></div>
+            <div class="slide"><img src="pc-print3.jpg" alt="Passo 3 PC"></div>
+            <div class="slide"><img src="pc-print4.jpg" alt="Passo 4 PC"></div>
         </div>
-        <div class="slide-text-container">
-            <h2 id="main-titulo" style="color: #007bff; margin:0 0 10px 0;"></h2>
-            <p id="main-txt" style="margin:0;"></p>
-        </div>
+        
+        <button class="nav-btn next" onclick="mudarSlide('wrapper-pc', 1)">&#10095;</button>
+        <div class="dots-container"></div>
     </div>
-    
-    <div class="dots-container" id="dots-holder"></div>
-</div>
 
-<script>
-    // Seus dados aqui (tutorialAndroid / tutorialPC)
-    const tutorialAndroid = [
-        { img: "print1.jpeg", titulo: "Android - Passo 1", txt: "Abra o Maps e pressione o dedo no local desejado." },
-        { img: "print2.jpeg", titulo: "Android - Passo 2", txt: "Toque nas coordenadas que aparecem para copiar." },
-        { img: "print3.jpeg", titulo: "Android - Passo 3", txt: "Cole no nosso site e gere os links." }
-    ];
+    <div id="wrapper-mobile" class="carousel-wrapper">
+        <button class="nav-btn prev" onclick="mudarSlide('wrapper-mobile', -1)">&#10094;</button>
+        
+        <div class="carousel-container">
+            <div class="slide active"><img src="animacao1.gif" alt="Passo 1 Celular"></div>
+            <div class="slide"><img src="animacao2.gif" alt="Passo 2 Celular"></div>
+            <div class="slide"><img src="animacao3.gif" alt="Passo 3 Celular"></div>
+        </div>
+        
+        <button class="nav-btn next" onclick="mudarSlide('wrapper-mobile', 1)">&#10095;</button>
+        <div class="dots-container"></div>
+    </div>
 
-    const tutorialPC = [
-        { img: "pc-print1.jpg", titulo: "PC - Passo 1", txt: "Clique com o botão direito no local no Google Maps." },
-        { img: "pc-print2.jpg", titulo: "PC - Passo 2", txt: "Copie a URL completa da barra de endereços." },
-        { img: "pc-print3.jpg", titulo: "PC - Passo 3", txt: "Cole o link no campo indicado no site." },
-        { img: "pc-print4.jpg", titulo: "PC - Passo 4", txt: "Clique em 'Gerar Links de App'" }
-    ];
+    <a href="index.html" class="btn-voltar">Voltar para o Início</a>
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const dados = isMobile ? tutorialAndroid : tutorialPC;
+    <script>
+        // Gerencia os índices ativos de cada Wrapper de forma isolada
+        const carrosseisStatus = {
+            'wrapper-pc': { atual: 0 },
+            'wrapper-mobile': { atual: 0 }
+        };
 
-    // Pre-load
-    dados.forEach(item => { const img = new Image(); img.src = item.img; });
-
-    const contentArea = document.getElementById('content-area');
-    const imgEl = document.getElementById('main-img');
-    const tituloEl = document.getElementById('main-titulo');
-    const txtEl = document.getElementById('main-txt');
-    const dotsHolder = document.getElementById('dots-holder');
-
-    let slideIndex = 0;
-    let timer;
-
-    dados.forEach((_, index) => {
-        dotsHolder.innerHTML += `<span class="dot" onclick="manualChange(${index})"></span>`;
-    });
-
-    const dots = document.getElementsByClassName("dot");
-
-    function updateContent(index) {
-        contentArea.classList.add('fade-out');
-
-        setTimeout(() => {
-            imgEl.src = dados[index].img;
-            tituloEl.innerText = dados[index].titulo;
-            txtEl.innerText = dados[index].txt;
+        // Cria as bolinhas injetando-as dinamicamente no container externo correspondente
+        function inicializarIndicadores(idWrapper) {
+            const wrapper = document.getElementById(idWrapper);
+            const slides = wrapper.getElementsByClassName('slide');
+            const dotsContainer = wrapper.getElementsByClassName('dots-container')[0];
             
-            for (let d of dots) d.classList.remove('active');
-            dots[index].classList.add('active');
+            for (let i = 0; i < slides.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = `dot ${i === 0 ? 'active' : ''}`;
+                dot.setAttribute('onclick', `irParaSlide('${idWrapper}', ${i})`);
+                dotsContainer.appendChild(dot);
+            }
+        }
 
-            contentArea.classList.remove('fade-out');
-        }, 250);
-    }
+        // Controla a transição de avanço e recuo alterando as classes
+        function mudarSlide(idWrapper, direcao) {
+            const wrapper = document.getElementById(idWrapper);
+            const slides = wrapper.getElementsByClassName('slide');
+            const dots = wrapper.getElementsByClassName('dot');
+            let idx = carrosseisStatus[idWrapper].atual;
 
-    function autoPlay() {
-        slideIndex = (slideIndex + 1) % dados.length;
-        updateContent(slideIndex);
-        timer = setTimeout(autoPlay, 5000);
-    }
+            // Remove o estado ativo do elemento anterior
+            slides[idx].classList.remove('active');
+            if(dots[idx]) dots[idx].classList.remove('active');
 
-    function manualChange(index) {
-        clearTimeout(timer);
-        slideIndex = index;
-        updateContent(slideIndex);
-        timer = setTimeout(autoPlay, 5000);
-    }
+            // Define o novo índice com comportamento circular infinito
+            idx = (idx + direcao + slides.length) % slides.length;
+            carrosseisStatus[idWrapper].atual = idx;
 
-    // Inicialização
-    imgEl.src = dados[0].img;
-    tituloEl.innerText = dados[0].titulo;
-    txtEl.innerText = dados[0].txt;
-    dots[0].classList.add('active');
-    timer = setTimeout(autoPlay, 5000);
-</script>
+            // Adiciona o estado ativo no novo elemento visível
+            slides[idx].classList.add('active');
+            if(dots[idx]) dots[idx].classList.add('active');
+        }
 
+        // Atalho para clique direto nos pontinhos de navegação
+        function irParaSlide(idWrapper, n) {
+            const atual = carrosseisStatus[idWrapper].atual;
+            mudarSlide(idWrapper, n - atual);
+        }
+
+        // Inicializa o mapeamento assim que a árvore DOM estiver pronta
+        window.addEventListener('DOMContentLoaded', () => {
+            inicializarIndicadores('wrapper-pc');
+            inicializarIndicadores('wrapper-mobile');
+        });
+    </script>
 </body>
 </html>
