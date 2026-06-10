@@ -134,6 +134,13 @@
       margin-bottom: 12px;
     }
 
+    #link_ico{
+      font-size: 40px;
+      object-fit: contain;
+      /* [Garante que as imagens caibam no espaço sem distorcer as proporções] */
+      margin-bottom: 12px;
+    }
+
     /* Separa os links de contato (wpp/site) dos links de navegação */
     #app-whatsapp-site {
       margin-bottom: 30px;
@@ -252,7 +259,7 @@
   <h2>Selecione um aplicativo de Mapa</h2>
 
   <p id="app-nome">{titulo}</p>
-  <ul id="app-whatsapp-site" class="links">{wpp-site}</ul>
+  <ul id="app-whatsapp-site" class="links"></ul>
 
   <ul id="app-list" class="links">{lista}</ul>
 
@@ -334,7 +341,7 @@
         numeros: /(-?\d+\.\d+)/g
       },
       templates: {
-        link: `<a href="{link}" target="_blank"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAbCAIAAADganh7AAAE60lEQVRIDa3BC0yUBRwA8P//vu+77zvuEPNS1EDUpjk132mWphChgHCiICFCZCBuRm1uWsMHKE4kECvhdCI50qFz+ZxauZlhaCJPeapodHYixEMO7v3dff+MjQ2GzrP1+yERwf8NiQheUpNOf/HyNd1fj4HI22vksiWLxo/1hn6QiMBlHZ1d+UdP/15W1d7+xOl0AiAjk72qHrp44by46OUe7irohUQErmlpbc/WFvxaXKp0U0iSpBB4ALBYbQzD9BhNgf4Lt21K5DgOAJCIwAWdTwy7Mg+UlNcMUalsNvvsWVOXB/kC4LlLv1TV3kFAm922KWlt8JJFAIBEBC9i6DampueWVdXyvNxuF9euWbE6PFgu5wBAFB3Z2oKLPxch4oTxY3Kytgo8j0QEL9L4QJfwWYqhxzh0iCpu9fLYKA0iQp+6O/e3pH3zpKt75Ah1Vtomb69RSETwIja7ePj7U+WVtb4L58Z8GAoD9RhNG5O/utP4h+dw9c7kpMmTXkciguezWKw9RjMiKASB41iel8MgJeXVqXu0FrPV01O9b/eXo0cORyKCZzGZLNdulJ27eKW90yBjkJHJ3pk3MzTQ18d7NPRjsVhT0nNLymuIpDcnT9yX/oWc45CIYJAmnX7/ocKKqnoiySkRkcQyLAENe8UjNjI0LMQfEQGgo9Ow70DB9ZtVCCDnuV1bkubMnAoASEQwkE7fnJqee+/+nwLPE9AYr1EKntc3txqMJrvNrlYP1WZt9/Ee1WXoztx/5OpvpW4KXnQ44mPCYyJDoBcSEfSjb27J+Dq/srpBEASGkUWEBkSuCHR3V96qqM4/eqbh7oNpUybuSd0o2sXMnCNFxaVKNzfR4YiOCI6PDYc+SETQ5++2zu3pOXUNjQpBkCQpKTFaE+Snf9QiOhzjfLwsVpvu4aOxY7ycTmda5sHrJRUKQbBYrfExK9dEhjKMDPogEUGvxy1tOzK0DXcfsCyLiJ+vXxMS6Ft0vXR3dh4CBPi9Gx2xzHOE+u79ppxDx2saGjmGsYviqrCliXERLMtCP0hEANDa1pGSnltb3yjn2KeSEqNDli4GgGMnL2TtP+IxRAUAXqM9PdxVrW0d7Z1dDMOIdjEqPGjdx6tYhoGBkIisNrs2r/CH85dVKiUQrIuLCNcEQK+W1nbt4ePFNysdTgdJ9JSMkQGAu0oZrvkgNlLDsAwMgkR0o6Ry665vZYyMCDbER60I8Yd+7HaxvKr+5JkfH+ofy2QoEcycNilCs+SNCePgOZCITp75KSevEBFnT5+SsWMjx7EwSI/RLDmdZouV4zj1MA9EhOdDIso/dvroifOSJH0Ss/KjKA0M9Ki5NSev0NBtjIkMmT93BrgAiej4qUsHvztBhIsXvLUz+VPoR9/ckp59uKyyzmQ2h4X4pyUngQuQiK4UlezIyJVznJzjtm1eP3/uDOjVpNPvzSmouF2nVCqdDseGhKiVoQHgAiQik8mcmqG9WXpb6abgODY4YNGC+bNq6hvPXrjS2t7Jc6zFZktKiA5b9j7LsuACJCIAqK1v3Jyyt7vHKJdzCMALgtVqI4mckoSIGxKiwjUBMkRwDRIR9Cq/XV9QeLbhXpPZZCb4lyDw43xeCw301QT5wctAIoI+drt4q7z6anGpobuH5+Vvz5nu9948pZsCXhISETwDASD8V/8AXUpd6S35RhsAAAAASUVORK5CYII="></img>Abrir site</a>`,
+        link: `<a href="{link}" target="_blank"><span id="link_ico" >🔗</span>Abrir site</a>`,
         contato: `<a href="https://wa.me/{numero}" target="_blank" style="color:#0CC143;text-decoration:none"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAIAAABLixI0AAAE90lEQVQ4Ea3BfUyUdRwA8O/vued57p574Y473g4ROFEgwJc0XyhLRzWxNIhpGi1tKZZOUMp8SZ1kbtZsKphSkpBNEWdLJWOmIlAuX8plQiogcZwo3nEc3HGvz3PP821jY9PpNf/o8yGICI9zj3dYhN7LntZewckSxsBoYll9mjw+ltFrZBw8DkFEeFiz13zY0dToaXYqeSAECAAhAAgIkpsfrzDlqKe8Hp6ppOTwMIKIMMwj+St7zx5xXxhQBhROkqlMSVLEjGQjOcL2B93t/rsX3DfvKQdBlKbBmDVRuRnKBHgAQUQYYg+6Snqq66mblEtcYnhpvm56BB3GUSwME1FyiO7f3De+c5y/wdkMHsWmiHnZumdgGEFEAHBL/vWWqnr2VqxHU2J883l1OoTmkfx7bacq/U0Got5hWPysOhWGEEQEgF3Wk/v58yMF3Zex7yUrYuEJlNvqSv2n4/3ag6ZiI6MHAIKI13ydSyylPiq4L3rZzLBxCFjd19QiWPI0mZNVYyAECfDj7oO17PVFYuZ643wAIEFJ3NZz9Ch9ZZY/bVd8AQDUDlzefP+wYKBn+9O2j1jMUgyE0OIzL+4qFVE8nrTRxEYTKz+Qe/vTAcZfZSycqkoBgCLL/rOyv9Er6IJcRWLhWC4RQhBRWttdVUddX8Vmvx85m1z1tOf3laUHjAdMRTqZCgBWWsrrqZvSoCCXZBWJRVNVyRBajeOXkv6jEyChJmktqbY3bg38sJBM2xSzQEYoANhnqyt1ngIZtVSZVRydSxMKQvvd215g3qOTqWpHbyZ7rD/uDZ5dQb9cGDUHhtwR7O92lnZrBheIU7bE5RP4Lx2B+4s6d0ogVZs+IuW9daWB08vorOLoHBh22nn1Q+u3LEtv1M6bF/4chNbh73nbvJMAHEvaQI73X9zgrcnDiZ/EvkUTGQzbbT35tVDPemGVfm6+fqaCYv7wtNd7rs9ST0znRjKEhiFXvbeXmMv0tObk6E3khs+Sd+/zVMlYaVoVLlPDMB6DpbbaA94GAMyi0rO1Ew/Yz7QyNrmXvBo2aU10np7WAMChvsZtzu+nUynfJBYShzCY/88OM9VXaVyZqUqFB4goVfWdK+s/JagokFDyB0GQiIoJ89KHTGuS5bE8Bldb9jfQrRu4nEX6LCKhVGat/UpsyORN5fEr5BQDD7vkvlUz8GuTq8ULASCEJXRhxJx3DC+yhG50Na+2V3ICfWzUujgmgiDiJU9rQdcejrANKdtVlBweIWDQzNuueNt4KTieM03gRlGE3OF7C7sr2pS9S2HGBzG5AEAQ8YzrzyJrxWR6dGViEUNoeAJm3rrlbvUVpSVtMHJvwvIYJhwACCJW2s99If1UgDOLo3PgCdQP/rXTeqJT6xzpCdsds/QpRRwMIYi4tefIEenSOsVrU1TJ13wdl91t9qArWzvpBVWGnlarZAoKSAAFl+hrDXQfd1z82XdN0tKpvqiSyIXjVCYYRnwSv7Kr/AK2Kb0yDy1QGgYkAAIgIuuGccqEJLkxjFKaA7YWX9ddcMh0HDXAz1VPXh75SjwbCQ8gNsH5RsdnPQq3ykulyEekcHHJ8hFeMdDobu7k79uIW6ZmAREQUEKDTzEjbOws9dMzNBnwCGIPuk70X8zgEuNYQ7hMraTkMMQrBQYlnzvo6xH7rfyAjlZG0NooWmtk9BACQUT4n/wL7/xFSjCbdFoAAAAASUVORK5CYII="></img>WhatsApp</a>`
       },
       apps: {
@@ -382,8 +389,8 @@
         document.getElementsByTagName('body')[0].innerHTML = `
         <h1>Não encontrei os dados de latitude e longitude.</h1>
         <br>
-        <button class="btn-voltar" onclick="window.history.back()">
-        Voltar e alterar
+        <button class="btn-voltar">
+        <a href="https://j5r.github.io/localizacao">Voltar e alterar</a>
         </button>
         `
         return;
