@@ -251,12 +251,20 @@
       transition: opacity 0.5s;
       cursor: crosshair;
     }
+
+    #vamos-dirigir, #vamos-chamar-carro {
+      display: block;
+      width: 100%;
+      font-size: 24px;
+      color: #d14618;
+      margin: 20px 0 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
   <h1>Para onde vamos?</h1>
-  <h2>Selecione um aplicativo de Mapa</h2>
 
   <p id="app-nome">{titulo}</p>
   <ul id="app-whatsapp-site" class="links"></ul>
@@ -399,14 +407,18 @@
 
 
       const apps = document.getElementById('app-list');
-      apps.innerHTML = CONFIG.apps.maps.replace('{lat}', lat).replace('{long}', long);
+      apps.innerHTML = `<span id="vamos-dirigir">Vai dirigir? Selecione um mapa abaixo:</span>`;
+
+      apps.innerHTML += CONFIG.apps.maps.replace('{lat}', lat).replace('{long}', long);
       apps.innerHTML += CONFIG.apps.waze.replace('{lat}', lat).replace('{long}', long);
+      apps.innerHTML += CONFIG.apps.apple.replace('{lat}', lat).replace('{long}', long).replace('{apple_nickname}', apple_nickname);
+      
+      apps.innerHTML += `<span id="vamos-chamar-carro">Vamos chamar um carro?</span>`;
+
       apps.innerHTML += CONFIG.apps.uber.replace('{lat}', lat).replace('{long}', long).replace('{uber_nickname}', uber_nickname);
       apps.innerHTML += CONFIG.apps.taxi99.replace('{lat}', lat).replace('{long}', long).replace('{taxi99_nickname}', taxi99_nickname);
-      apps.innerHTML += CONFIG.apps.apps.replace('{lat}', lat).replace('{long}', long).replace('{apps_nickname}', apps_nickname).replace('{lat}', lat).replace('{long}', long);
-      apps.innerHTML += CONFIG.apps.apple.replace('{lat}', lat).replace('{long}', long).replace('{apple_nickname}', apple_nickname);
       apps.innerHTML += CONFIG.apps.indrive.replace('{lat}', lat).replace('{long}', long).replace('{indrive_nickname}', indrive_nickname).replace('{lat}', lat).replace('{long}', long);
-      
+      apps.innerHTML += CONFIG.apps.apps.replace('{lat}', lat).replace('{long}', long).replace('{apps_nickname}', apps_nickname).replace('{lat}', lat).replace('{long}', long);
 
       if (nome) {
         const app_nome = document.getElementById('app-nome')
