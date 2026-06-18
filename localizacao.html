@@ -9,7 +9,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap');
 
 
-    root {
+    * {
       font-family: "Arimo", sans-serif;
       font-optical-sizing: auto;
       font-style: normal;
@@ -369,6 +369,13 @@
   <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 
   <script>
+    if('serviceWorker' in navigator){
+            navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('servico de cacheamento registrado'))
+            .catch((error) => console.error('Erro ao registrar o service worker:', error));
+            
+        }
+
     let MAIN_URL = "https://j5r.github.io/localizacao/";
 
     function quebrarTexto(ctx, texto, maxWidth) {
