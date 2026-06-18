@@ -396,9 +396,19 @@
     }
 
 
+    function sanitizeFilename(name) {
+      return name.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[<>:\"\/\\|?*\x00-\x1F]/g, '')
+      .replace(/^\.+/, '')
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .substring(0,100).toLowerCase() || "moburb_qr_code";
+    }
 
 
-    function abrirQRNovaJanela(canvasFinal) {
+    function abrirQRNovaJanela(nome,canvasFinal) {
       const dataUrl = canvasFinal.toDataURL("image/png");
       const novaJanela = window.open();
       novaJanela.document.write(
@@ -406,6 +416,7 @@
       <html>
         <head>
           <title>MobUrb QR Code</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
             body {
               display: flex;
@@ -415,20 +426,49 @@
               margin: 0;
               background-color: #f0f2f5;
             }
+            .qr-container{
+            width:80vw;
+            max-width:320px;
+            min-width:200px;
+            padding: 16px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
             img {
-              max-width: 95vw;
-              height: auto;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-              border-radius:16px;
+            width: 100%;
+            height: auto;
+            display: block;
             }
           </style>
           <body>
-            <img src="${dataUrl}" alt="Moburb QR Code"/>
+            <div class="qr-container">
+              <img src="${dataUrl}" alt="Moburb QR Code"/>
+            </div>
           </body>
         </head>
       </html>
       `
       );
+
+      const sanitizedFileName = sanitizeFilename(nome || "moburb_qr_code");
+
+      setTimeout(() => {
+
+        canvasFinal.toBlob((blob)=> {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${sanitizedFileName}.png`;
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          URL.revokeObjectURL(url);
+        }, 'image/png', 1.0);
+
+      }, 1000);
     }
 
 
@@ -459,8 +499,8 @@
       console.log(URL)
 
       const qrCode = new QRCodeStyling({
-        width: 300,
-        height: 300,
+        width: 600,
+        height: 600,
         data: URL,
         image: "https://j5r.github.io/localizacao/moburb.svg",
         dotsOptions: {
@@ -496,12 +536,12 @@
 
             // Pega fator de escala
             const dpr = window.devicePixelRatio || 1; console.log("dpr: " + dpr);
-            const scale = canvasOriginal.width / 300;
+            const scale = canvasOriginal.width / 600;
 
             // Define dimensões e estilo do texto
-            const fontSize = 16 * scale; // tamanho da fonte proporcional ao tamanho do QR code          
-            const lineHeight = 22 * scale; // altura de cada linha de texto
-            const padding = 20// margem lateral para o texto nao ficar colado na borda do QR code
+            const fontSize = 36 * scale; // tamanho da fonte proporcional ao tamanho do QR code          
+            const lineHeight = 40 * scale; // altura de cada linha de texto
+            const padding = 50// margem lateral para o texto nao ficar colado na borda do QR code
 
 
             const ctxTemp = canvasOriginal.getContext("2d");
@@ -512,7 +552,7 @@
             const linhas = quebrarTexto(ctxTemp, nomeQR, maxWidth);
 
             // Altura do footer reescalada
-            const footerHeight = linhas.length * lineHeight + 20 * scale; // 20px de folga
+            const footerHeight = linhas.length * lineHeight + 45 * scale; // 20px de folga
 
             const canvasFinal = document.createElement("canvas");
             const ctx = canvasFinal.getContext("2d");
@@ -536,14 +576,14 @@
 
 
             divQR.innerHTML = "";
-            abrirQRNovaJanela(canvasFinal)
+            abrirQRNovaJanela(nome,canvasFinal)
           }).catch((error) => {
             console.error("Erro ao gerar QR code com nome:", error);
           });
 
 
       }
-      
+
     }
 
 
