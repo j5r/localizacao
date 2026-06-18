@@ -4,11 +4,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selecionar Aplicativo de Mapa</title>
+  <title>MobUrb - Localização</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap');
+
+
+    root {
+      font-family: "Arimo", sans-serif;
+      font-optical-sizing: auto;
+      font-style: normal;
+    }
+
     /* Estilos base e tipografia */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
       text-align: center;
       background-color: #f0f2f5;
       padding: 20px;
@@ -165,6 +174,14 @@
       align-items: center;
     }
 
+    #div-share {
+
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
     .btn-share {
       padding: 14px 24px;
       border: none;
@@ -180,8 +197,21 @@
       transition: background 0.2s;
     }
 
+    #btn-share {
+      width: 80%;
+    }
+
+    #btn-gerar-qr {
+      width: 20%;
+    }
+
     .btn-share:hover {
       background: #0056b3;
+    }
+
+    #btn-gerar-qr {
+      background: #28a745;
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
     }
 
     .btn-voltar {
@@ -245,7 +275,7 @@
       color: white;
       padding: 10px 20px;
       border-radius: 6px;
-      margin-top:-10px; 
+      margin-top: -10px;
     }
 
     #pix:hover {
@@ -274,13 +304,25 @@
       border-radius: 10px;
     }
 
-    #qr{
+    #qr {
       margin-bottom: 30px;
+    }
+
+    h3 {
+      text-align: right;
+    }
+
+
+
+    #moburb-title {
+      color: #db541b;
     }
   </style>
 </head>
 
 <body>
+  <h3><span id="moburb-title">MobUrb</span> - Facilitando a <strong style="font-weight: bold;">Mobilidade Urbana
+      :)</strong></h3>
   <h1>Para onde vamos?</h1>
 
   <p id="app-nome">{titulo}</p>
@@ -289,9 +331,13 @@
   <ul id="app-list" class="links">{lista}</ul>
 
   <div class="acoes">
-    <button class="btn-share" id="btn-share" onclick="compartilharLink()">
-      🔗 Gerar link para compartilhar
-    </button>
+    <div id="div-share">
+      <button class="btn-share" id="btn-share" onclick="compartilharLink()">
+        🔗 Gerar link para compartilhar
+      </button>
+      <button class="btn-share" id="btn-gerar-qr" onclick="geraQrCode()">
+        QR
+    </div>
     <div id="area-link">
       <label style="font-size:14px;font-weight:bold;color:#555;">
         COPIE E COMPARTILHE ESTE LINK:
@@ -323,6 +369,8 @@
   <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 
   <script>
+    let MAIN_URL = "https://j5r.github.io/localizacao/";
+
     function quebrarTexto(ctx, texto, maxWidth) {
       const palavras = texto.split(' ');
       const linhas = [];
@@ -340,11 +388,162 @@
         }
       }
 
-      
-        linhas.push(linhaAtual);
-      
+
+      linhas.push(linhaAtual);
+
       console.log(linhas);
       return linhas;
+    }
+
+
+
+
+    function abrirQRNovaJanela(canvasFinal) {
+      const dataUrl = canvasFinal.toDataURL("image/png");
+      const novaJanela = window.open();
+      novaJanela.document.write(
+        `
+      <html>
+        <head>
+          <title>MobUrb QR Code</title>
+          <style>
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+              margin: 0;
+              background-color: #f0f2f5;
+            }
+            img {
+              max-width: 95vw;
+              height: auto;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+              border-radius:16px;
+            }
+          </style>
+          <body>
+            <img src="${dataUrl}" alt="Moburb QR Code"/>
+          </body>
+        </head>
+      </html>
+      `
+      );
+    }
+
+
+    function geraQrCode() {
+
+      const parms = new URLSearchParams(window.location.search);
+      console.log("Parâmetros da URL:");
+      console.info(parms);
+
+      const lat = parms.get('lat');
+      const long = parms.get('long');
+      let nomeQR = parms.get('nome');
+      let contato = parms.get('contato');
+      let link = parms.get('link');
+
+      if (nomeQR && nomeQR.trim() !== "") nomeQR_ = "&nome=" + encodeURIComponent(nomeQR.trim());
+      else nomeQR_ = "";
+
+      if (contato && contato.trim() !== "") contato_ = "&contato=" + encodeURIComponent(contato.trim());
+      else contato_ = "";
+
+      if (link && link.trim() !== "") link_ = "&link=" + encodeURIComponent(link.trim());
+      else link_ = "";
+
+
+      const URL = MAIN_URL + "?lat=" + lat + "&long=" + long + nomeQR_ + contato_ + link_;
+
+      console.log(URL)
+
+      const qrCode = new QRCodeStyling({
+        width: 300,
+        height: 300,
+        data: URL,
+        image: "https://j5r.github.io/localizacao/moburb.svg",
+        dotsOptions: {
+          type: "rounded",
+          color: "#202060"
+        },
+        cornerSquareOptions: {
+          type: "extra-rounded"
+        },
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 5,
+          imageSize: 0.35,
+          hideBackgroundDots: true
+        },
+        qrOptions: {
+          errorCorrectionLevel: "H"
+        }
+      });
+
+      const divQR = document.getElementById('qr');
+
+      console.log(qrCode);
+      qrCode.append(divQR);
+
+      if (nomeQR && nomeQR.trim() !== "") { // se tiver um nome para adicionar ao rodape do QR code
+
+        qrCode.getRawData('png')
+          .then(() => {
+            const canvasOriginal = divQR.querySelector("canvas");
+            if (!canvasOriginal) return;
+
+
+            // Pega fator de escala
+            const dpr = window.devicePixelRatio || 1; console.log("dpr: " + dpr);
+            const scale = canvasOriginal.width / 300;
+
+            // Define dimensões e estilo do texto
+            const fontSize = 16 * scale; // tamanho da fonte proporcional ao tamanho do QR code          
+            const lineHeight = 22 * scale; // altura de cada linha de texto
+            const padding = 20// margem lateral para o texto nao ficar colado na borda do QR code
+
+
+            const ctxTemp = canvasOriginal.getContext("2d");
+            ctxTemp.font = `bold ${fontSize}px Arial`;
+
+            const maxWidth = canvasOriginal.width - 2 * padding;
+            // Quebra o nome em múltiplas linhas se necessário
+            const linhas = quebrarTexto(ctxTemp, nomeQR, maxWidth);
+
+            // Altura do footer reescalada
+            const footerHeight = linhas.length * lineHeight + 20 * scale; // 20px de folga
+
+            const canvasFinal = document.createElement("canvas");
+            const ctx = canvasFinal.getContext("2d");
+
+
+            canvasFinal.width = canvasOriginal.width + 2 * padding;
+            canvasFinal.height = canvasOriginal.height + footerHeight + padding;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvasFinal.width, canvasFinal.height);
+            ctx.drawImage(canvasOriginal, padding, padding);
+
+            // Desenha o texto com o tamanho correto
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "center";
+            ctx.font = `bold ${fontSize}px Arial`;
+
+            linhas.forEach((linha, index) => {
+              ctx.fillText(linha, canvasFinal.width / 2, canvasOriginal.height + 2 * padding + index * lineHeight);
+            });
+
+
+            divQR.innerHTML = "";
+            abrirQRNovaJanela(canvasFinal)
+          }).catch((error) => {
+            console.error("Erro ao gerar QR code com nome:", error);
+          });
+
+
+      }
+      
     }
 
 
@@ -358,7 +557,7 @@
       let contato = prompt("Adicione um contato whatsapp (ou deixe em branco):");
       let link = prompt("Adicione um link do site (ou deixe em branco):");
 
-      let url = "https://j5r.github.io/localizacao/" + "?lat=" + lat + "&long=" + long;
+      let url = MAIN_URL + "?lat=" + lat + "&long=" + long;
 
       if (contato && contato.trim() !== "") url += "&contato=" + encodeURIComponent(contato.trim());
       if (link && link.trim() !== "") url += "&link=" + encodeURIComponent(link.trim());
@@ -376,97 +575,6 @@
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
       input_.select();
-
-      if (nome && nome.trim() !== "") nome_ = "&nome=" + encodeURIComponent(nome.trim());
-      else nome_ = "";
-
-      if (contato && contato.trim() !== "") contato_ = "&contato=" + encodeURIComponent(contato.trim());
-      else contato_ = "";
-
-      if (link && link.trim() !== "") link_ = "&link=" + encodeURIComponent(link.trim());
-      else link_ = "";
-
-      const URL = "https://j5r.github.io/localizacao/" + "?lat=" + lat + "&long=" + long
-        + nome_ + contato_ + link_;
-
-      console.log(URL)
-      const qrCode = new QRCodeStyling({
-        width: 300,
-        height: 300,
-        data: URL,
-        image: "https://j5r.github.io/localizacao/moburb.svg",//"https://github.com/j5r/localizacao/blob/1b581463e30d04da5bde30cd3c69db22d5fd34a0/whatsapp.png",
-        dotsOptions: {
-          type: "rounded",
-          color: "#202060"
-        },
-        cornerSquareOptions: {
-          type: "extra-rounded"
-        },
-        imageOptions: {
-          crossOrigin: "anonymous",
-          margin: 10,
-          imageSize: 0.35,
-          hideBackgroundDots: true
-        },
-        qrOptions: {
-          errorCorrectionLevel: "H"
-        }
-      });
-      const divQR = document.getElementById('qr');
-      console.log(qrCode);
-      qrCode.append(divQR);
-
-      if (nome && nome.trim() !== "") { // se tiver um nome para adicionar ao rodape do QR code
-        qrCode.getRawData('png').then(() => {         
-          const canvasOriginal = divQR.querySelector("canvas");
-          if (!canvasOriginal) return;
-
-
-          // Pega fator de escala
-          const dpr = window.devicePixelRatio || 1; console.log("dpr: " + dpr);
-          const scale = canvasOriginal.width / 300;
-
-          // Define dimensões e estilo do texto
-          const fontSize = 16 * scale; // tamanho da fonte proporcional ao tamanho do QR code          
-          const lineHeight = 22 * scale; // altura de cada linha de texto
-          const padding = 20// margem lateral para o texto nao ficar colado na borda do QR code
-
-
-          const ctxTemp = canvasOriginal.getContext("2d");
-          ctxTemp.font = `bold ${fontSize}px Arial`;
-
-          const maxWidth = canvasOriginal.width - 2 * padding;
-          // Quebra o nome em múltiplas linhas se necessário
-          const linhas = quebrarTexto(ctxTemp, nome, maxWidth);
-
-          // Altura do footer reescalada
-          const footerHeight = linhas.length * lineHeight + 20*scale; // 20px de folga
-
-          const canvasFinal = document.createElement("canvas");
-          const ctx = canvasFinal.getContext("2d");
-          
-          
-          canvasFinal.width = canvasOriginal.width + 2 * padding;
-          canvasFinal.height = canvasOriginal.height + footerHeight + padding;
-
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvasFinal.width, canvasFinal.height);
-          ctx.drawImage(canvasOriginal, padding, padding);
-
-          // Desenha o texto com o tamanho correto
-          ctx.fillStyle = "#000000";
-          ctx.textAlign = "center";
-          ctx.font = `bold ${fontSize}px Arial`;
-
-          linhas.forEach((linha, index) => {
-            ctx.fillText(linha, canvasFinal.width / 2, canvasOriginal.height + 2*padding  + index * lineHeight);
-          });
-
-
-          divQR.innerHTML = "";
-          divQR.appendChild(canvasFinal);
-        }, 1000);
-      }
     }
   </script>
 
