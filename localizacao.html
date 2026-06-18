@@ -398,17 +398,17 @@
 
     function sanitizeFilename(name) {
       return name.normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[<>:\"\/\\|?*\x00-\x1F]/g, '')
-      .replace(/^\.+/, '')
-      .replace(/\s+/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      .substring(0,100).toLowerCase() || "moburb_qr_code";
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[<>:\"\/\\|?*\x00-\x1F]/g, '')
+        .replace(/^\.+/, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .substring(0, 100).toLowerCase() || "moburb_qr_code";
     }
 
 
-    function abrirQRNovaJanela(nome,canvasFinal) {
+    function abrirQRNovaJanela(nome, canvasFinal) {
       const dataUrl = canvasFinal.toDataURL("image/png");
       const novaJanela = window.open();
       novaJanela.document.write(
@@ -418,31 +418,39 @@
           <title>MobUrb QR Code</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
+            body {              
               margin: 0;
-              background-color: #f0f2f5;
+              display:flex;
+              justify-content:center;
+              align-items:center;
+              min-height:100vh;
+              background-color: #f0f2f5;              
             }
-            .qr-container{
+            .qr-card{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             width:80vw;
-            max-width:320px;
-            min-width:200px;
-            padding: 16px;
+
+            padding: 24px;
             background-color: white;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width:90%;
+            max-width:450px;
             }
-            .qr-container img {
-            width: 100%;
-            height: auto;
-            display: block;
+            .qr-card img {            
+            width:100%;
+            max-width:380px;
+            height:auto;
+            display:block;
+            margin: 0 auto;            
             }
           </style>
           <body>
-            <div class="qr-container">
+            <div class="qr-card">
               <img src="${dataUrl}" alt="Moburb QR Code"/>
             </div>
           </body>
@@ -455,12 +463,12 @@
 
       setTimeout(() => {
 
-        canvasFinal.toBlob((blob)=> {
+        canvasFinal.toBlob((blob) => {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
           link.download = `${sanitizedFileName}.png`;
-          
+
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -576,7 +584,7 @@
 
 
             divQR.innerHTML = "";
-            abrirQRNovaJanela(nome,canvasFinal)
+            abrirQRNovaJanela(nome, canvasFinal)
           }).catch((error) => {
             console.error("Erro ao gerar QR code com nome:", error);
           });
