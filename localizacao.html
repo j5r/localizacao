@@ -420,6 +420,7 @@
       const novaJanela = window.open();
       novaJanela.document.write(
         `
+      <!DOCTYPE html>
       <html>
         <head>
           <title>MobUrb QR Code</title>
@@ -439,12 +440,9 @@
               background-color: #f0f2f5;              
             }
             .qr-card{
-            display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            width:80vw;
-
             padding: 24px;
             background-color: white;
             border-radius: 16px;
@@ -466,6 +464,7 @@
                 }
             }
           </style>
+          </head>
           <body>
             <div class="qr-card">
               <img src="${dataUrl}" alt="Moburb QR Code"/>
