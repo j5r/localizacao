@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abrir Localização</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8f9ff 0%, #eef1ff 100%);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .card {
+    background: white;
+    padding: 30px 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(51, 85, 221, 0.1);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  h1 {
+    color: #3355dd;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 1rem;
+  }
+
+  button {
+    background: #3355dd;
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.2s;
+  }
+  button:active {
+    transform: scale(0.97);
+    background: #2842b3;
+  }
+
+  #status {
+    margin-top: 20px;
+    padding: 14px;
+    background: #f1f4ff;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>📍 Enviar Minha Localização</h1>
+    <p>Clique e vamos abrir seu link com as coordenadas</p>
+    
+    <button id="btnLocal">Usar minha localização agora</button>
+    
+    <div id="status"></div>
+  </div>
+
+<script>
+// === AQUI VOCÊ COLOCA SUA URL BASE ===
+// Use {lat} e {long} que o código troca automaticamente
+
+const URL_BASE = "https://j5r.github.io/localizacao/localizacao.html?lat={lat}&long={long}&nome={nome}";
+
+// Nome que vai aparecer na URL. Pode trocar
+const NOME_LOCAL = prompt("Digite o nome do local.") || "";
+
+const btn = document.getElementById('btnLocal');
+const status = document.getElementById('status');
+
+btn.addEventListener('click', () => {
+  status.style.display = 'none';
+  status.innerText = 'Buscando sua localização...';
+  status.style.display = 'block';
+  btn.innerText = 'Buscando...';
+  btn.disabled = true;
+
+  if (!navigator.geolocation) {
+    alert('Seu navegador não suporta geolocalização');
+    btn.innerText = 'Usar minha localização agora';
+    btn.disabled = false;
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude.toFixed(6);
+      const long = position.coords.longitude.toFixed(6);
+
+      // Monta a URL trocando os parâmetros
+      const urlFinal = URL_BASE
+        .replace('{lat}', lat)
+        .replace('{long}', long)
+        .replace('{nome}',NOME_LOCAL);
+
+      status.innerHTML = `<b>Encontrado!</b><br>Lat: ${lat} <br>Long: ${long}<br><br>Redirecionando...`;
+
+      // Abre o link em 1.5 segundos
+      setTimeout(() => {
+        window.location.href = urlFinal;
+      }, 1500);
+    },
+    (error) => {
+      alert('Erro ao pegar localização: ' + error.message);
+      status.style.display = 'none';
+      btn.innerText = 'Usar minha localização agora';
+      btn.disabled = false;
+    },
+    {
+      enableHighAccuracy: true, // GPS mais preciso
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+});
+</script>
+</body>
+</html>
