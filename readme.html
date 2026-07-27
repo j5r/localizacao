@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobUrb - Facilitando a Mobilidade Urbana</title>
+    <style>
+        :root {
+            --bg-body: #f4f5f8;
+            --bg-container: #ffffff;
+            --text-main: #333333;
+            --title-blue: #007bff;
+            --brand-orange: #eb681e;
+            
+            /* Cores dos Botões Extraídas do Anexo */
+            --btn-blue: #007bff;
+            --btn-green: #28a745;
+            --btn-gray: #6c757d;
+            --btn-purple: #b388d1;
+            --btn-teal: #5bc0be;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Cabeçalho de marca que aparece no topo direito do print */
+        .header-brand {
+            text-align: right;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .header-brand span {
+            color: var(--brand-orange);
+            font-weight: bold;
+        }
+
+        /* Container principal estilo documento */
+        .container {
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            background-color: var(--bg-container);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--title-blue);
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--bg-body);
+            padding-bottom: 8px;
+        }
+
+        p, ul, ol {
+            margin-bottom: 1em;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        a {
+            color: var(--title-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background-color: var(--bg-body);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.95em;
+            color: #d63384;
+        }
+
+        /* Classes utilitárias para botões caso queira inserir no HTML depois */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: #ffffff !important;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none !important;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; text-decoration: none; }
+        .btn-blue { background-color: var(--btn-blue); }
+        .btn-green { background-color: var(--btn-green); }
+        .btn-gray { background-color: var(--btn-gray); }
+        .btn-purple { background-color: var(--btn-purple); }
+        .btn-teal { background-color: var(--btn-teal); }
+
+        /* Responsividade para Celulares */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .header-brand {
+                text-align: center;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-brand">
+        <span>MobUrb</span> - Facilitando a Mobilidade Urbana :)
+    </div>
+    <div class="container">
+        <h1 id="moburb">MobUrb:</h1>
+<ul>
+<li><a href="#moburb">MobUrb:</a></li>
+<li><a href="#descrição">Descrição</a></li>
+<li><a href="#como-faço-para-salvar-o-local">Como faço para salvar o local?</a></li>
+<li><a href="#indo-até-o-local-para-salvá-lo">Indo até o local para salvá-lo</a></li>
+<li><a href="#usando-um-mapa-para-pegar-a-localização">Usando um Mapa para pegar a localização</a></li>
+<li><a href="#como-faço-para-gerar-o-qr-code">Como faço para gerar o QR Code?</a></li>
+<li><a href="#quem-sou-eu">Quem Sou eu?</a></li>
+</ul>
+<h1 id="descricao">Descrição</h1>
+<p>MobUrb é um facilitador de localização. </p>
+<ol>
+<li>Salve um endereço físico usando coordenadas geográficas (o endereço não é com nome de rua, número, etc. Estou falando das coordenadas do GPS do seu celular).</li>
+<li>Crie um link único contendo as coordenadas geográficas desse local.</li>
+<li>Crie um QR Code com esse link e salve na sua galeria de fotos.</li>
+<li>Quando precisar se dirigir ao endereço, use o link (ou leia o QR Code para obter o link):</li>
+<li>Dirija usando o Google Maps, Waze ou Apple Maps com um clique. O mapa já vai direcionar você automaticamente para o destino.</li>
+<li>Chame um <strong>Uber, 99, Indrive</strong> (funciona em Android e iOS), ou <strong>outro aplicativo Android</strong> compatível com a tecnologia de deep link <code>geo:</code>. Quando você chamar pelo aplicativo, <strong>o endereço do desembarque já fica preenchido automaticamente com o endereço que você salvou no MobUrb</strong>, basta que você preencha o local de embarque.</li>
+</ol>
+<h1 id="como-faco-para-salvar-o-local">Como faço para salvar o local?</h1>
+<p>Temos duas formas de fazer a nossa mágica acontecer: 
+ <br>(a) vá ao local que você quer salvar e siga os passos descritos abaixo; 
+ <br>(b) use um mapa como o Google Maps ou Apple Maps para encontrar o endereço e descobrir as coordenadas geográficas.</p>
+<h2 id="indo-ate-o-local-para-salva-lo">Indo até o local para salvá-lo</h2>
+<p>Vá ao local desejado. 
+ <br> <strong>OBS 1.:</strong> <code>Se você estiver em um condomínio</code> e quer mandar esse endereço para um amigo ir te visitar, o ideal é que você mande o endereço da portaria, e por isso vá até lá. Na descrição diga qual é o número do apartamento e o prédio, exemplo "Marcos Torre 3 Nº 202".
+ <br> <strong>OBS 2.:</strong> <code>Se o número da casa não é muito visível</code>, meio escondido ou não existe, faça uma pequena descrição da entrada tipo "Jéssica - portão grade branca"
+ <br> <strong>OBS 3.:</strong> O ideal é <code>sempre estar na rua ou na calçada para criar o endereço MobUrb</code>, nunca dentro de casa, pois o GPS do celular precisa se comunicar com satélites. Sem isso, a localização pode ficar imprecisa ou dar na rua de trás, na rua do lado ou no meio do quarteirão, e isso é frustrante para quem vai se dirigir até o local.</p>
+<p>Use o <strong><code>getloc</code></strong> para capturar as coordenadas do seu local e gerar o link. O seu navegador vai pedir <code>permissão de localização</code> e você deverá marcar "Permitir com alta precisão" (alguns celulares permitem com "baixa" precisão, NÃO marque esta opção, pois o endereço ficará em algum lugar desconhecido).</p>
+<p>Eis aqui o link para o <strong><code>getloc</code></strong> <a href="https://j5r.github.io/localizacao/getloc.html  target="_blank"">https://j5r.github.io/localizacao/getloc.html</a></p>
+<h2 id="usando-um-mapa-para-pegar-a-localizacao">Usando um Mapa para pegar as coordenadas geográficas</h2>
+<ol>
+<li>Abra o Google Maps no ceu celular (Android) e escolha um endereço.</li>
+<li>Dê zoom e marque um ponto perto da rua (digamos que seja "na calçada"). Toque na tela e segure o toque por um breve instante. Um marcador vermelho será adicionado na tela.</li>
+<li>Evite pegar os endereços já prontos que aparecem no mapa, como "📍 Escola João Silva", marque o endereço bem perto entre a rua e o ponto "📍" da escola.</li>
+<li>Role a tela <strong>"Alfinete inserido"</strong> para cima, e procure dois números um ao lado do outro, como este exemplo <strong><code>-23.4710343, -47.4493876</code></strong>. Ele costuma ficar abaixo de um endereço (neste exemplo o endereço diz <code>Próximo a R. Antônio Joaquim Santana, 918 - Jardim Abaete, Sorocaba - SP, 18081-295</code>)</li>
+<li><strong>Toque nesses números.</strong> Eles serão copiados para a <em>memória de transferência</em> do seu celular.</li>
+<li>Abra a tela inicial do MobUrb <a href="https://j5r.github.io/localizacao"  target="_blank">(clique neste link)</a> e toque no <strong>botão verde do topo "Colar Link do Maps"</strong>(talvez seja necessário dar permissão para o MobUrb enxergar a <em>memória de transferência</em>)</li>
+<li>Toque no <strong>botão verde em baixo "Gerar Links de App"</strong>.</li>
+<li>Pronto, já está funcionando para você!</li>
+</ol>
+<br>
+<p style="color:var(--brand-orange)">Você pode ver isso acontecendo na prática no tutorial <a href="https://j5r.github.io/localizacao/tutorial.html" target="_blank">(clique neste link)</a>.</p>
+<br>
+<p>Você quer compartilhar o link com uma descrição? Então continue...
+<ol><li> Clique no <strong>botão Azul "Gerar link para compartilhar"</strong>.</li> 
+<li>  Dê uma descrição (opcional)</li> 
+<li>  Adicione um contato de whatsapp (opcional)</li> 
+<li>  Adicione um link do seu site ou rede social (opcional)</li> 
+<li>  Foi gerado um link. Copie e mande para quem você quiser ou abra-o em outra guia do navegador.</li> 
+</ol>
+</p>
+<h1 id="como-faco-para-gerar-o-qr-code">Como faço para gerar o QR Code?</h1>
+<p>Estando o endereço configurado e o link pronto, basta clicar no <strong>botão verde QR</strong>. Uma nova tela será aberta com o QR code e o navegador vai baixá-lo no seu celular.</p>
+<p><strong>OBS.:</strong> Ainda não funciona muito bem no Safari (navegador do Iphone). Se o Safari não baixar a figura, tire um print da tela para salvar o QR Code.</p>
+<h1 id="quem-sou-eu">Quem Sou eu?</h1>
+<p>Sou natural de Deodápolis, uma pequena cidade no interior do Mato Grosso do Sul; minha família mora toda nesse estado. </p>
+<p>Sou formado em Matemática Computacional pelo ICMC-USP, e me mudei para Sorocaba em janeiro de 2026 em busca de oportunidade na área de Ciência da Computação ou Ciência de Dados, já que aqui tem muitas empresas grandes e que necessitam de gente para trabalhar nesse ramo.</p>
+<p>Desempregado há um ano, trabalho no momento como moto táxi por aplicativo. As contas não se pagam sozinhas, né?! Estou enviando currículos e aguardando uma oportunidade.</p>
+<p>Devido a esse meu trabalho de táxi, tive a ideia de criar o MobUrb, e ainda tenho ideias para melhoria. No entanto, somente quando consigo um tempo livre é que posso trabalhar nele, pois fico a semana toda pilotando e quase não pego o computador...</p>
+<p>Enfim, se precisar falar comigo, entre em contato no botão <strong>Suporte</strong> que você encontra na <a href="https://j5r.github.io/localizacao"  target="_blank">página inicial</a>.</p>
+<p>Grato!<br>
+Junior R. Ribeiro</p>
+    </div>
+</body>
+</html>
