@@ -84,9 +84,6 @@
 
 const URL_BASE = "https://j5r.github.io/localizacao/localizacao.html?lat={lat}&long={long}&nome={nome}";
 
-// Nome que vai aparecer na URL. Pode trocar
-const NOME_LOCAL = prompt("Digite o nome do local.") || "";
-
 const btn = document.getElementById('btnLocal');
 const status = document.getElementById('status');
 
@@ -108,6 +105,11 @@ btn.addEventListener('click', () => {
     (position) => {
       const lat = position.coords.latitude.toFixed(6);
       const long = position.coords.longitude.toFixed(6);
+
+
+// Nome que vai aparecer na URL. Pode trocar
+const NOME_LOCAL = prompt("Digite o nome do local.") || "";
+
 
       // Monta a URL trocando os parâmetros
       const urlFinal = URL_BASE
